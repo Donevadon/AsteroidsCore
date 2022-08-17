@@ -1,4 +1,6 @@
-﻿namespace CoreEngine.Player
+﻿using System;
+
+namespace CoreEngine.Player
 {
     public interface IPlayerController
     {

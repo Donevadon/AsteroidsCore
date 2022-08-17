@@ -1,21 +1,22 @@
+using System;
+using System.Collections.Generic;
 using System.Numerics;
-using CoreEngine.Player;
+using System.Threading;
 
 namespace CoreEngine.Core
 {
     public abstract class CoreEngine
     {
-        private readonly List<GameObject> _objects = new();
+        private readonly List<GameObject> _objects = new List<GameObject>();
         private readonly Thread _updateObjectsThread;
         private readonly Thread _spawnAsteroidsThread;
-        private readonly CancellationTokenSource _tokenSource = new();
 
         protected abstract IObjectPool Pool { get; }
 
         protected CoreEngine()
         {
-            _updateObjectsThread = new Thread(() => UpdateObjects(_tokenSource.Token));
-            _spawnAsteroidsThread = new Thread(() => SpawnAsteroids(_tokenSource.Token));
+            _updateObjectsThread = new Thread(UpdateObjects);
+            _spawnAsteroidsThread = new Thread(SpawnAsteroids);
         }
 
         public void Start()
@@ -32,15 +33,16 @@ namespace CoreEngine.Core
             Add(player);
         }
 
-        private void UpdateObjects(CancellationToken token)
+        private void UpdateObjects()
         {
-            while (!token.IsCancellationRequested)
+            while (true)
             {
                 for (var i = 0; i < _objects.Count; i++)
                 {
                     var gameObject = Get(i);
                     gameObject.Update();
                 }
+                Thread.Sleep(20);
             }
         }
 
@@ -60,55 +62,14 @@ namespace CoreEngine.Core
             }
         }
 
-        private void SpawnAsteroids(CancellationToken token)
+        private void SpawnAsteroids()
         {
-            while (!token.IsCancellationRequested)
+            while (true)
             {
-                Pool.GetAsteroid(new Vector2(1,1));
+                Thread.Sleep(TimeSpan.FromSeconds(3));
+                var asteroid = Pool.GetAsteroid(new Vector2(1, 1));
+                Add(asteroid);
             }
         }
-    }
-
-    public class ObjectPool : IObjectPool
-    {
-        public GameObject GetPlayer()
-        {
-            return new PlayerShip(null);
-        }
-
-        public GameObject GetAsteroid(Vector2 vector2)
-        {
-            return new Asteroid(vector2);
-        }
-    }
-
-    public class Asteroid : GameObject
-    {
-        private readonly IMovement _movement = new PlayerMovement(Vector2.Zero, Vector2.UnitY, 0.1f);
-        private readonly IRotate _rotation = new PlayerRotation(Vector3.Zero, Vector3.UnitZ, 5);
-        public event Action<Vector2> PositionChanged;
-        public event Action<Vector3> RotationChanged;
-
-        public Asteroid(Vector2 vector2)
-        {
-            
-        }
-
-        public override void Update()
-        {
-            
-        }
-    }
-
-
-    public interface IObjectPool
-    {
-        GameObject GetPlayer();
-        GameObject GetAsteroid(Vector2 vector2);
-    }
-
-    public abstract class GameObject
-    {
-        public abstract void Update();
     }
 }

@@ -1,4 +1,5 @@
-﻿using Vector2 = System.Numerics.Vector2;
+﻿using System;
+using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;
 
 namespace CoreEngine.Player
@@ -24,26 +25,14 @@ namespace CoreEngine.Player
         {
             _controller = controller;
 
-            _controller.Move += _movement.Move;
-            _controller.Rotate += _rotation.Rotate;
+            //_controller.Move += _movement.Move;
+            //_controller.Rotate += _rotation.Rotate;
             _rotation.RotationChanged += _movement.CalculateDirection;
         }
 
         public override void Update()
         {
+            _rotation.Rotate(1);
         }
-    }
-
-    internal interface IRotate
-    {
-        void Rotate(float acceleration);
-        public event Action<Vector3> RotationChanged;
-    }
-
-    internal interface IMovement
-    {
-        void Move(float acceleration);
-        void CalculateDirection(Vector3 rotationZ);
-        public event Action<Vector2> PositionChanged;
     }
 }
