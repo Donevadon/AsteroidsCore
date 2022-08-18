@@ -3,9 +3,9 @@ using System.Numerics;
 
 namespace CoreEngine.Player
 {
-    internal interface IMovement
+    public interface IMovement
     {
-        void Move(float acceleration);
+        void Move();
         void CalculateDirection(Vector3 rotationZ);
         event Action<Vector2> PositionChanged;
     }

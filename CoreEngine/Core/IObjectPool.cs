@@ -4,7 +4,7 @@ namespace CoreEngine.Core
 {
     public interface IObjectPool
     {
-        GameObject GetPlayer();
+        GameObject GetPlayer(Vector2 startPosition);
         GameObject GetAsteroid(Vector2 vector2);
     }
 }

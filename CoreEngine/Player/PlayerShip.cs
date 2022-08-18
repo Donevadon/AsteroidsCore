@@ -1,38 +1,32 @@
 ﻿using System;
-using Vector2 = System.Numerics.Vector2;
-using Vector3 = System.Numerics.Vector3;
+using System.Numerics;
+using System.Threading.Tasks;
+using CoreEngine.Core;
 
 namespace CoreEngine.Player
 {
-    public class PlayerShip : CoreEngine.Core.GameObject
+    public class PlayerShip : GameObject
     {
         private readonly IPlayerController _controller;
-        private readonly IMovement _movement = new PlayerMovement(Vector2.Zero, Vector2.UnitY, 0.1f);
-        private readonly IRotate _rotation = new PlayerRotation(Vector3.Zero, Vector3.UnitZ, 5);
-        
-        public event Action<Vector2> PositionChanged
-        {
-            add => _movement.PositionChanged += value;
-            remove => _movement.PositionChanged -= value;
-        }
-        public event Action<Vector3> RotationChanged
-        {
-            add => _rotation.RotationChanged += value;
-            remove => _rotation.RotationChanged -= value;
-        }
+        private readonly IAccelerationMovement _acceleration;
+        protected sealed override IMovement Movement => _acceleration;
+        protected sealed override IRotate Rotation { get; }
 
-        public PlayerShip(IPlayerController controller)
+
+        public PlayerShip(IPlayerController controller, Vector2 startPosition)
         {
             _controller = controller;
 
-            //_controller.Move += _movement.Move;
-            //_controller.Rotate += _rotation.Rotate;
-            _rotation.RotationChanged += _movement.CalculateDirection;
+            _acceleration = new PlayerMovement(startPosition, Vector2.UnitY, 0.5f);
+            Rotation = new PlayerRotation(Vector3.Zero, Vector3.UnitZ, 5);
+            Rotation.RotationChanged += Movement.CalculateDirection;
+            _controller.Move += _ => _acceleration.Acceleration = 1;
+            _controller.Rotate += Rotation.Rotate;
         }
-
-        public override void Update()
+        
+        public override Task Update()
         {
-            _rotation.Rotate(1);
+            return Task.Run(Movement.Move);
         }
     }
 }

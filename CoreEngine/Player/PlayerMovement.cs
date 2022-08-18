@@ -1,36 +1,38 @@
-﻿using System;
-using Vector2 = System.Numerics.Vector2;
-using Vector3 = System.Numerics.Vector3;
+﻿using System.Numerics;
 
 namespace CoreEngine.Player
 {
-    public class PlayerMovement : IMovement
+    public class PlayerMovement : Movement
     {
-        private Vector2 _position;
-        public Vector2 Direction { get; set; }
-        public void CalculateDirection(Vector3 rotationZ)
+        private float _acceleration = 1;
+        public PlayerMovement(Vector2 startPosition, Vector2 direction, float speed) : base(startPosition, direction, speed)
         {
-            var z = rotationZ.Z;
-
-            Direction = new Vector2(1 * (float)Math.Cos(Math.PI / 180 * z), 1 * (float) Math.Sin(Math.PI / 180 * z));
         }
 
-        public event Action<Vector2> PositionChanged;
-
-        private readonly float _speed;
-
-        public PlayerMovement(Vector2 startPosition, Vector2 direction, float speed)
+        public override float Acceleration
         {
-            _position = startPosition;
-            Direction = direction;
-            _speed = speed;
+            get => _acceleration;
+            set
+            {
+                if (value > 1)
+                {
+                    _acceleration = 1;
+                }else if (value < 0)
+                {
+                    _acceleration = 0;
+                }
+                else
+                {
+                    _acceleration = value;
+                }
+            }
         }
-        
-        public void Move(float acceleration)
+
+        public override void Move()
         {
-            _position += (Direction * acceleration * (_speed * 0.02f));
-            
-            PositionChanged?.Invoke(_position);
+            base.Move();
+
+            Acceleration -= 0.01f;
         }
     }
 }

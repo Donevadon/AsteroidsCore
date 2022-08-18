@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CoreEngine.Core
 {
-    public abstract class CoreEngine
+    public abstract class CoreEngine : IDisposable
     {
-        private readonly List<GameObject> _objects = new List<GameObject>();
+        public event Func<Task> FrameUpdated;
         private readonly Thread _updateObjectsThread;
         private readonly Thread _spawnAsteroidsThread;
 
@@ -21,55 +22,38 @@ namespace CoreEngine.Core
 
         public void Start()
         {
-            CreatePlayer();
+            CreatePlayer(Vector2.Zero);
             _updateObjectsThread.Start();
             _spawnAsteroidsThread.Start();
         }
 
-        private void CreatePlayer()
+        private void CreatePlayer(Vector2 position)
         {
-            var player = Pool.GetPlayer();
-            Console.WriteLine("Player Created");
-            Add(player);
+            _ = Pool.GetPlayer(position);
         }
 
         private void UpdateObjects()
         {
             while (true)
             {
-                for (var i = 0; i < _objects.Count; i++)
-                {
-                    var gameObject = Get(i);
-                    gameObject.Update();
-                }
+                _ = FrameUpdated?.Invoke();
                 Thread.Sleep(20);
             }
         }
-
-        private void Add(GameObject obj)
-        {
-            lock (this)
-            {
-                _objects.Add(obj);
-            }
-        }
-
-        private GameObject Get(int index)
-        {
-            lock (this)
-            {
-                return _objects[index];
-            }
-        }
-
+        
         private void SpawnAsteroids()
         {
             while (true)
             {
                 Thread.Sleep(TimeSpan.FromSeconds(3));
-                var asteroid = Pool.GetAsteroid(new Vector2(1, 1));
-                Add(asteroid);
+                _ = Pool.GetAsteroid(new Vector2(1, 1));
             }
+        }
+
+        public void Dispose()
+        {
+            _updateObjectsThread.Abort();
+            _spawnAsteroidsThread.Abort();
         }
     }
 }
