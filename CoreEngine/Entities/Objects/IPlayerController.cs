@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoreEngine.Player
+namespace CoreEngine.Entities.Objects
 {
     public interface IPlayerController
     {

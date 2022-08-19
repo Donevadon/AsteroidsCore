@@ -1,9 +1,8 @@
-using System;
 using System.Numerics;
 using System.Threading.Tasks;
-using CoreEngine.Player;
+using CoreEngine.Behaviors;
 
-namespace CoreEngine.Core
+namespace CoreEngine.Entities.Objects
 {
     public class Asteroid : GameObject
     {

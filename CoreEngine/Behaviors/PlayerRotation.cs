@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Numerics;
+using CoreEngine.Entities;
 
-namespace CoreEngine.Player
+namespace CoreEngine.Behaviors
 {
     public class PlayerRotation : IRotate
     {

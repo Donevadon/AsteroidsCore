@@ -1,12 +1,12 @@
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
-using CoreEngine.Player;
+using CoreEngine.Core;
 
-namespace CoreEngine.Core
+namespace CoreEngine.Entities
 {
 
-    public abstract class GameObject
+    public abstract class GameObject : IObject
     {
         protected abstract IMovement Movement { get; }
         protected abstract IRotate Rotation { get; }

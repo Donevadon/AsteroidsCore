@@ -1,7 +1,7 @@
 using System;
 using System.Numerics;
 
-namespace CoreEngine.Player
+namespace CoreEngine.Entities
 {
     public interface IMovement
     {

@@ -1,8 +1,8 @@
 ﻿using System;
-using Vector2 = System.Numerics.Vector2;
-using Vector3 = System.Numerics.Vector3;
+using System.Numerics;
+using CoreEngine.Entities;
 
-namespace CoreEngine.Player
+namespace CoreEngine.Behaviors
 {
     public class Movement : IAccelerationMovement
     {

@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace CoreEngine.Player
+namespace CoreEngine.Behaviors
 {
     public class PlayerMovement : Movement
     {

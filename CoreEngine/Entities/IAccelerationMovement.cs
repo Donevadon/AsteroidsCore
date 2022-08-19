@@ -1,4 +1,4 @@
-namespace CoreEngine.Player
+namespace CoreEngine.Entities
 {
     public interface IAccelerationMovement: IMovement
     {
