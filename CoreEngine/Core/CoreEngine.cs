@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using CoreEngine.Entities.Objects;
 
 namespace CoreEngine.Core
 {
@@ -28,7 +29,7 @@ namespace CoreEngine.Core
 
         private void CreatePlayer(Vector2 position)
         {
-            _ = Pool.GetPlayer(position);
+            _ = Pool.GetPlayer(position, Pool as IBulletFactory);
         }
 
         private void UpdateObjects()
@@ -45,7 +46,7 @@ namespace CoreEngine.Core
             while (true)
             {
                 Thread.Sleep(TimeSpan.FromSeconds(3));
-                _ = Pool.GetAsteroid(new Vector2(1, 1));
+                _ = Pool.GetAsteroid(new Vector2(1, 1), Pool as IFragmentsFactory);
             }
         }
 

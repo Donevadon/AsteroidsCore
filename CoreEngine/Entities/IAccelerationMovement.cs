@@ -2,6 +2,6 @@ namespace CoreEngine.Entities
 {
     public interface IAccelerationMovement: IMovement
     {
-        float Acceleration { set; }
+        float Acceleration { get; set; }
     }
 }

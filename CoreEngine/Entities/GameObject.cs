@@ -23,6 +23,13 @@ namespace CoreEngine.Entities
             remove => Rotation.RotationChanged -= value;
         }
 
+        public event Action Destroyed;
+
         public abstract Task Update();
+
+        public virtual void Destroy()
+        {
+            Destroyed?.Invoke();
+        }
     }
 }

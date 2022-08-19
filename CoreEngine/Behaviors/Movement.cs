@@ -27,6 +27,15 @@ namespace CoreEngine.Behaviors
             _direction = direction;
             _speed = speed;
         }
+        
+        public Movement(Vector2 startPosition, Vector3 rotation, float speed)
+        {
+            _position = startPosition;
+            _speed = speed;
+            CalculateDirection(rotation);
+        }
+
+        public Vector2 Position => _position;
 
         public virtual void Move()
         {

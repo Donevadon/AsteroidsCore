@@ -4,7 +4,7 @@ namespace CoreEngine.Behaviors
 {
     public class PlayerMovement : Movement
     {
-        private float _acceleration = 1;
+        private float _acceleration;
         public PlayerMovement(Vector2 startPosition, Vector2 direction, float speed) : base(startPosition, direction, speed)
         {
         }
