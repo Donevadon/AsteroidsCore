@@ -1,55 +1,42 @@
-using System.Numerics;
-using CoreEngine.Entities.Objects;
+using CoreEngine.Core.Models;
 
 namespace CoreEngine.Core.Factory
 {
-    public abstract class ObjectFactory : IObjectPool, IFragmentsFactory, IBulletFactory
+    public abstract class ObjectFactory : Factory, IObjectPool
     {
-        private readonly CoreEngine _engine;
-
-        protected ObjectFactory(CoreEngine engine)
+        protected ObjectFactory(CoreEngine engine) : base(engine)
         {
-            _engine = engine;
         }
         
-        public IObject GetPlayer(Vector2 startPosition, IBulletFactory factory)
+        public IObject GetPlayer(PlayerModel model)
         {
-            var ship = CreatePlayer(startPosition, factory);
-            _engine.FrameUpdated += ship.Update;
+            var ship = CreatePlayer(model);
+            InitInEngine(ship);
 
             return ship;
         }
 
-        protected abstract IObject CreatePlayer(Vector2 startPosition, IBulletFactory factory);
+        protected abstract IObject CreatePlayer(PlayerModel model);
         
 
-        public IObject GetAsteroid(Vector2 vector2, IFragmentsFactory factory)
+        public IObject GetAsteroid(AsteroidModel model)
         {
-            var asteroid = CreateAsteroid(vector2, factory);
-            _engine.FrameUpdated += asteroid.Update;
+            var asteroid = CreateAsteroid(model);
+            InitInEngine(asteroid);
 
             return asteroid;
         }
 
-        protected abstract IObject CreateAsteroid(Vector2 position, IFragmentsFactory factory);
-
-        public IObject GetSmallAsteroid(Vector2 position)
+        public IObject GetAlien(AlienModel model)
         {
-            var asteroid = CreateSmallAsteroid(position);
-            _engine.FrameUpdated += asteroid.Update;
+            var alien = CreateAlien(model);
+            InitInEngine(alien);
 
-            return asteroid;
+            return alien;
         }
 
-        protected abstract IObject CreateSmallAsteroid(Vector2 position);
-        public IObject GetBullet(Vector2 position, Vector3 direction)
-        {
-            var bullet = CreateBullet(position, direction);
-            _engine.FrameUpdated += bullet.Update;
+        protected abstract IObject CreateAlien(AlienModel model);
 
-            return bullet;
-        }
-
-        protected abstract IObject CreateBullet(Vector2 position, Vector3 direction);
+        protected abstract IObject CreateAsteroid(AsteroidModel model);
     }
 }

@@ -1,59 +1,105 @@
 using System;
 using System.Numerics;
-using System.Threading;
-using System.Threading.Tasks;
+using CoreEngine.Core.Configurations;
+using CoreEngine.Core.Models;
 using CoreEngine.Entities.Objects;
 
 namespace CoreEngine.Core
 {
-    public abstract class CoreEngine : IDisposable
+    public abstract class CoreEngine
     {
-        public event Func<Task> FrameUpdated;
-        private readonly Thread _updateObjectsThread;
-        private readonly Thread _spawnAsteroidsThread;
+        public event Action<float> FrameUpdated;
+        private DateTime _asteroidTime;
+        private DateTime _alienTime;
+        private readonly Options _options;
+        private readonly PlayerOptions _playerOptions;
+        private readonly AsteroidOptions _asteroidOptions;
+        private readonly AlienOptions _alienOptions;
+        private readonly Vector2 _screenSize;
+
+        protected CoreEngine(Options options)
+        {
+            _options = options;
+            _playerOptions = options.PlayerOptions;
+            _asteroidOptions = options.AsteroidOptions;
+            _alienOptions = options.AlienOptions;
+            _screenSize = new Vector2(options.ScreenSize.Width, options.ScreenSize.Height);
+        }
 
         protected abstract IObjectPool Pool { get; }
+        protected abstract IFragmentsFactory FragmentsFactory { get; }
+        protected abstract IAmmunitionFactory AmmunitionFactory { get; }
 
-        protected CoreEngine()
-        {
-            _updateObjectsThread = new Thread(UpdateObjects);
-            _spawnAsteroidsThread = new Thread(SpawnAsteroids);
-        }
 
         public void Start()
         {
-            CreatePlayer(Vector2.Zero);
-            _updateObjectsThread.Start();
-            _spawnAsteroidsThread.Start();
+            CreatePlayer();
         }
 
-        private void CreatePlayer(Vector2 position)
+        public void UpdateFrame(float deltaTime)
         {
-            _ = Pool.GetPlayer(position, Pool as IBulletFactory);
+            FrameUpdated?.Invoke(deltaTime);
+            Timer(ref _asteroidTime, TimeSpan.FromSeconds(3), SpawnAsteroids);
+            Timer(ref _alienTime, TimeSpan.FromMinutes(1), SpawnAliens);
         }
 
-        private void UpdateObjects()
+        private void CreatePlayer()
         {
-            while (true)
+            var moveOptions = new MoveOptions(new Vector2(_playerOptions.StartPositionX, _playerOptions.StartPositionY), _playerOptions.MoveSpeed,
+                _playerOptions.StartAngle, _screenSize);
+            var model = new PlayerModel()
             {
-                _ = FrameUpdated?.Invoke();
-                Thread.Sleep(20);
-            }
+                Factory = AmmunitionFactory,
+                MoveOptions = moveOptions,
+                RotateSpeed = _playerOptions.RotateSpeed
+            };
+            _ = Pool.GetPlayer(model);
         }
-        
+
         private void SpawnAsteroids()
         {
-            while (true)
+            var random = new Random();
+            var options = new MoveOptions(new Vector2(-_screenSize.X, _screenSize.Y), _options.AsteroidOptions.MoveSpeed, random.Next(0,360), _screenSize);
+            var model = new AsteroidModel()
             {
-                Thread.Sleep(TimeSpan.FromSeconds(3));
-                _ = Pool.GetAsteroid(new Vector2(1, 1), Pool as IFragmentsFactory);
+                Factory = FragmentsFactory,
+                FragmentCount = _asteroidOptions.FragmentCount,
+                FragmentOptions = _asteroidOptions.FragmentAsteroidOptions,
+                MoveOptions = options,
+                RotateSpeed = _asteroidOptions.RotateSpeed
+            };
+            _ = Pool.GetAsteroid(model); 
+        }
+
+        private void Timer(ref DateTime lastTime, TimeSpan time, Action action)
+        {
+            var delta = DateTime.Now - lastTime;
+            if (delta > time)
+            {
+                action();
+                lastTime = DateTime.Now;
             }
         }
 
-        public void Dispose()
+        private void SpawnAliens()
         {
-            _updateObjectsThread.Abort();
-            _spawnAsteroidsThread.Abort();
+            var random = new Random();
+            var options = new MoveOptions(new Vector2(_screenSize.X, -_screenSize.Y), _alienOptions.MoveSpeed, random.Next(0,360), _screenSize);
+            var model = new AlienModel()
+            {
+                Controller = new Mock(),
+                MoveOptions = options,
+                RotateSpeed = _alienOptions.RotateSpeed
+            };
+            _ = Pool.GetAlien(model);
+            
         }
+
+    }
+
+    internal class Mock : IController
+    {
+        public event Action Move;
+        public event Action<float> Rotate;
     }
 }

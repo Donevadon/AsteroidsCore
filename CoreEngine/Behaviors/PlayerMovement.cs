@@ -1,38 +1,43 @@
 ﻿using System.Numerics;
+using CoreEngine.Entities;
 
 namespace CoreEngine.Behaviors
 {
-    public class PlayerMovement : Movement
+    public class PlayerMovement : Movement, IAccelerationMovement
     {
-        private float _acceleration;
-        public PlayerMovement(Vector2 startPosition, Vector2 direction, float speed) : base(startPosition, direction, speed)
-        {
-        }
+        private const float Braking = 0.001f;
 
-        public override float Acceleration
+        protected override float Acceleration { get; set; }
+
+        float IAccelerationMovement.Acceleration
         {
-            get => _acceleration;
+            get => Acceleration;
             set
             {
                 if (value > 1)
                 {
-                    _acceleration = 1;
+                    Acceleration = 1;
                 }else if (value < 0)
                 {
-                    _acceleration = 0;
+                    Acceleration = 0;
                 }
                 else
                 {
-                    _acceleration = value;
+                    Acceleration = value;
                 }
             }
         }
-
-        public override void Move()
+        
+        public PlayerMovement(Vector2 startPosition, float direction, float speed, Vector2 screenSize) : base(startPosition, direction, speed, screenSize)
         {
-            base.Move();
+        }
 
-            Acceleration -= 0.01f;
+        public override void Move(float deltaTime)
+        {
+            base.Move(deltaTime);
+
+            var controller = this as IAccelerationMovement;
+            controller.Acceleration -= Braking;
         }
     }
 }

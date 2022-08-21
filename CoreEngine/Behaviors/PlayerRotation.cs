@@ -1,39 +1,33 @@
-﻿using System;
-using System.Numerics;
-using CoreEngine.Entities;
+﻿using System.Numerics;
+using CoreEngine.Entities.Objects;
 
 namespace CoreEngine.Behaviors
 {
-    public class PlayerRotation : IRotate
+    public class PlayerRotation : Rotation, IAccelerationRotate
     {
-        private Vector3 _rotation;
-        private readonly Vector3 _direction;
-        private readonly float _speed;
+        protected override float Acceleration { get; set; }
 
-        public PlayerRotation(Vector3 startRotation, Vector3 direction, float speed)
+        float IAccelerationRotate.Acceleration
         {
-            _rotation = startRotation;
-            _direction = direction;
-            _speed = speed;
+            get => Acceleration;
+            set
+            {
+                if (value > 1)
+                {
+                    Acceleration = 1;
+                }else if (value < -1)
+                {
+                    Acceleration = -1;
+                }
+                else
+                {
+                    Acceleration = value;
+                }
+            }
         }
-        public void Rotate(float acceleration)
+        
+        public PlayerRotation(float startAngle, float speed) : base(startAngle, Vector3.UnitZ, speed)
         {
-            _rotation += _direction * acceleration * (_speed * 0.02f);
-
-            if (_rotation.Z > 180)
-            {
-                var a =_rotation.Z - 180;
-                _rotation.Z = -180 + a;
-            }
-            else if (_rotation.Z < -180)
-            {
-                var a = -180 - _rotation.Z;
-                _rotation.Z = 180 - a;
-            }
-            
-            RotationChanged?.Invoke(_rotation);
         }
-
-        public event Action<Vector3> RotationChanged;
     }
 }

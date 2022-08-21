@@ -1,52 +1,69 @@
 using System;
 using System.Numerics;
-using System.Threading.Tasks;
 using CoreEngine.Behaviors;
 using CoreEngine.Core;
+using CoreEngine.Core.Configurations;
+using CoreEngine.Core.Models;
 
 namespace CoreEngine.Entities.Objects
 {
     public class Asteroid : GameObject
     {
         private readonly IFragmentsFactory _factory;
-        private Task testDestroy;
+        private readonly int _fragmentCount;
+        private readonly FragmentAsteroidOptions _options;
+        private readonly Vector2 _screenSize;
+        private readonly float _speed;
 
-        public Asteroid(Vector2 vector2, IFragmentsFactory factory)
+        public Asteroid(AsteroidModel model)
+            : base(new Movement(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, model.MoveOptions.ScreenSize),
+                new Rotation(model.MoveOptions.Angle, Vector3.UnitZ, model.RotateSpeed))
         {
-            _factory = factory;
-            Movement = new Movement(vector2, Vector2.UnitY, 0.1f);
-            Rotation = new PlayerRotation(Vector3.Zero, Vector3.UnitZ, 5);
+            _factory = model.Factory;
+            _fragmentCount = model.FragmentCount;
+            _options = model.FragmentOptions;
+            _screenSize = model.MoveOptions.ScreenSize;
+            _speed = model.MoveOptions.Speed;
         }
 
-        protected override IMovement Movement { get; }
-        protected override IRotate Rotation { get; }
+        public override float Size => 0.5f;
 
-        public override Task Update()
+        public override void OnCollision(IObject sender)
         {
-            if (testDestroy == null)
-            {
-                testDestroy = Task.Run(async () =>
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(3));
-                    Destroy();
-                });
-            }
-            var task = Task.Run(() =>
-            {
-                Movement.Move();
-                Rotation.Rotate(1);
-            });
-
-            return task;
+            Destroy();
         }
 
-        public override void Destroy()
+        public override bool IsCollision(IObject obj)
         {
-            for (var i = 0; i < 3; i++)
-            {
-                _factory.GetSmallAsteroid(Movement.Position);
-            }
+            return !(obj is SmallAsteroid) 
+                   && !(obj is Alien) 
+                   && !(obj is Asteroid) 
+                   && base.IsCollision(obj);
+        }
+
+        public override void Update(float deltaTime)
+        {
+            Movement.Move(deltaTime);
+            Rotation.Rotate(deltaTime);
+        }
+
+        protected override void Destroy()
+        {           
             base.Destroy();
+
+            for (var i = 0; i < _fragmentCount; i++)
+            {
+                var random = new Random();
+                var option = new MoveOptions(Movement.Position, _speed + _options.Acceleration, random.Next(0, 360),
+                    _screenSize);
+                var model = new FragmentAsteroidModel()
+                {
+                    MoveOption = option,
+                    RotateSpeed =  (float) random.NextDouble() * _options.MaxRotateSpeed
+                };
+                
+                _factory.GetSmallAsteroid(model);
+            }
         }
     }
 }

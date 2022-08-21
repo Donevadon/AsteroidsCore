@@ -1,57 +1,72 @@
-﻿using System;
-using System.Numerics;
-using System.Threading.Tasks;
-using CoreEngine.Behaviors;
+﻿using CoreEngine.Behaviors;
 using CoreEngine.Core;
+using CoreEngine.Core.Configurations;
+using CoreEngine.Core.Models;
+using CoreEngine.Entities.Objects.Factory;
 
 namespace CoreEngine.Entities.Objects
 {
-    public class PlayerShip : GameObject
+    public class PlayerShip : ControlledGameObject
     {
-        private readonly IPlayerController _controller;
-        private readonly IBulletFactory _factory;
+        private readonly IMetricView _metric;
+        private readonly IAmmunitionFactory _factory;
         private readonly IAccelerationMovement _acceleration;
+        private readonly IAccelerationRotate _rotate;
         private readonly IGun _gun;
-        private Vector3 _rotation = Vector3.Zero;
-        protected sealed override IMovement Movement => _acceleration;
-        protected sealed override IRotate Rotation { get; }
+        private float _angle;
 
-
-        public PlayerShip(IPlayerController controller, Vector2 startPosition, IBulletFactory factory)
+        public PlayerShip(IController controller, IMetricView metric, PlayerModel model)
+            : base(controller, new PlayerMovement(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, model.MoveOptions.ScreenSize), 
+                new PlayerRotation(model.MoveOptions.Angle, model.RotateSpeed))
         {
-            _controller = controller;
-            _factory = factory;
+            _metric = metric;
+            _factory = model.Factory;
+            metric.UpdateAngle(model.MoveOptions.Angle);
+            metric.UpdatePosition(model.MoveOptions.Position);
 
-            _acceleration = new PlayerMovement(startPosition, Vector2.UnitY, 1.5f);
-            Rotation = new PlayerRotation(Vector3.Zero, Vector3.UnitZ, 10);
-            Rotation.RotationChanged += rotation => _rotation = rotation;
-            _controller.Move += _ =>
-            {
-                _acceleration.Acceleration += 0.2f;
-                Movement.CalculateDirection(_rotation);
-            };
-            _controller.Rotate += acceleration => Rotation.Rotate(acceleration);
-
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(1));
-                    Fire();
-                }
-
-            });
+            _acceleration = Movement as IAccelerationMovement;
+            _rotate = Rotation as IAccelerationRotate;
+            Rotation.RotationChanged += rotation => _angle = rotation;
+            Rotation.RotationChanged += _metric.UpdateAngle;
+            Movement.PositionChanged += _metric.UpdatePosition;
         }
-        
-        public override Task Update()
+
+        public override void Update(float deltaTime)
         {
-            return Task.Run(Movement.Move);
+            Movement.Move(deltaTime);
+            Rotation.Rotate(deltaTime);
         }
 
         public void Fire()
         {
-            _factory.GetBullet(Movement.Position, _rotation);
+            _factory.GetAmmo(null);
         }
+
+        protected override void OnRotate(float acceleration)
+        {
+            _rotate.Acceleration = acceleration;
+        }
+
+        protected override void OnMove()
+        {
+            _acceleration.Acceleration += 0.02f;
+            Movement.CalculateDirection(_angle);
+        }
+
+        public override bool IsCollision(IObject obj)
+        {
+            return !(obj is Bullet) && base.IsCollision(obj);
+        }
+
+        public override void OnCollision(IObject sender)
+        {
+            
+        }
+    }
+
+    internal interface IAccelerationRotate : IRotate
+    {
+        float Acceleration { get; set; }
     }
 
     internal interface IGun

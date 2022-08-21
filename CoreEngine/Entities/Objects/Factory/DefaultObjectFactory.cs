@@ -1,25 +1,37 @@
 ﻿using System.Numerics;
 using CoreEngine.Core;
+using CoreEngine.Core.Configurations;
 using CoreEngine.Core.Factory;
+using CoreEngine.Core.Models;
 
 namespace CoreEngine.Entities.Objects.Factory
 {
     public class DefaultObjectFactory : ObjectFactory
     {
-        private readonly IPlayerController _controller;
-        
-        public DefaultObjectFactory(Core.CoreEngine engine, IPlayerController controller) : base(engine)
+        private readonly IController _controller;
+        private readonly IMetricView _metric;
+
+
+        public DefaultObjectFactory(Core.CoreEngine engine, IController controller, IMetricView metric) : base(engine)
         {
             _controller = controller;
+            _metric = metric;
         }
 
-        protected override IObject CreatePlayer(Vector2 startPosition, IBulletFactory factory) => new PlayerShip(_controller, startPosition, factory);
+        protected override IObject CreatePlayer(PlayerModel model) => new PlayerShip(_controller, _metric, model);
 
-        protected override IObject CreateAsteroid(Vector2 position, IFragmentsFactory factory) => new Asteroid(position, factory);
+        protected override IObject CreateAlien(AlienModel model) =>
+            new Alien(model);
 
-        protected override IObject CreateSmallAsteroid(Vector2 position) =>
-            new SmallAsteroid(position, Vector2.One, 1.5f, Vector3.One);
+        protected override IObject CreateAsteroid(AsteroidModel model) => new Asteroid(model);
+    }
 
-        protected override IObject CreateBullet(Vector2 position, Vector3 direction) => new Bullet(position, direction);
+    public interface IMetricView
+    {
+        void UpdatePosition(Vector2 position);
+        void UpdateAngle(float angle);
+        void UpdateSpeed(float speed);
+        void UpdateLaserCount(int count);
+        void LaserRollbackTime(int time);
     }
 }

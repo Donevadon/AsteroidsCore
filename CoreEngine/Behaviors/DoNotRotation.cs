@@ -6,11 +6,11 @@ namespace CoreEngine.Behaviors
 {
     public class DoNotRotation : IRotate
     {
-        public void Rotate(float acceleration)
+        public void Rotate(float deltaTime)
         {
-            
         }
 
-        public event Action<Vector3> RotationChanged;
+        public event Action<float> RotationChanged;
+        public float Angle => 0;
     }
 }

@@ -2,9 +2,9 @@
 
 namespace CoreEngine.Entities.Objects
 {
-    public interface IPlayerController
+    public interface IController
     {
-        event Action<float> Move;
+        event Action Move;
         event Action<float> Rotate;
     }
 }

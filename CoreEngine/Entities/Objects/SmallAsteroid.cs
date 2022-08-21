@@ -1,28 +1,28 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Threading.Tasks;
 using CoreEngine.Behaviors;
+using CoreEngine.Core;
+using CoreEngine.Core.Configurations;
+using CoreEngine.Core.Models;
 
 namespace CoreEngine.Entities.Objects
 {
     public class SmallAsteroid : GameObject
     {
-        protected override IMovement Movement { get; }
-        protected override IRotate Rotation { get; }
-
-        public SmallAsteroid(Vector2 position, Vector2 direction, float speed, Vector3 rotation)
+        public SmallAsteroid(FragmentAsteroidModel model) : base(new Movement(model.MoveOption.Position, model.MoveOption.Angle, model.MoveOption.Speed, model.MoveOption.ScreenSize),
+            new Rotation(model.MoveOption.Angle, Vector3.UnitZ, model.RotateSpeed))
         {
-            Movement = new Movement(position, direction, speed);
-            Rotation = new PlayerRotation(rotation, Vector3.UnitZ, speed);
         }
-        
-        public override Task Update()
+
+        public override void OnCollision(IObject sender)
         {
-            return Task.Run(() =>
-            {
-                Movement.Move();
-                Rotation.Rotate(1);
-            });
+            Destroy();
+        }
+
+        public override void Update(float deltaTime)
+        {
+            Movement.Move(deltaTime);
+            Rotation.Rotate(deltaTime);
         }
     }
 }

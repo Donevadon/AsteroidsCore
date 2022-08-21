@@ -4,46 +4,44 @@ using CoreEngine.Entities;
 
 namespace CoreEngine.Behaviors
 {
-    public class Movement : IAccelerationMovement
+    public class Movement : IMovement
     {
+        private readonly float _speed;
+        private readonly Vector2 _screenSize;
+
         private Vector2 _position;
         private Vector2 _direction;
-        public virtual float Acceleration { get; set; } = 1f;
-
-        public void CalculateDirection(Vector3 rotationZ)
-        {
-            var z = rotationZ.Z;
-
-            _direction = new Vector2(1 * (float) Math.Cos(Math.PI / 180 * z), 1 * (float) Math.Sin(Math.PI / 180 * z));
-        }
-
+        
         public event Action<Vector2> PositionChanged;
 
-        private readonly float _speed;
-
-        public Movement(Vector2 startPosition, Vector2 direction, float speed)
-        {
-            _position = startPosition;
-            _direction = direction;
-            _speed = speed;
-        }
-        
-        public Movement(Vector2 startPosition, Vector3 rotation, float speed)
-        {
-            _position = startPosition;
-            _speed = speed;
-            CalculateDirection(rotation);
-        }
-
+        protected virtual float Acceleration { get; set; } = 1f;
         public Vector2 Position => _position;
 
-        public virtual void Move()
+        public Movement(Vector2 startPosition, float angle, float speed, Vector2 screenSize)
         {
-            _position += (_direction * Acceleration * (_speed * 0.02f));
+            _position = startPosition;
+            _speed = speed;
+            _screenSize = screenSize;
+            CalculateDirection(angle);
+        }
+        
+        public void CalculateDirection(float angle)
+        {
+            _direction = new Vector2((float) Math.Cos(Math.PI / 180 * angle), (float) Math.Sin(Math.PI / 180 * angle));
+        }
 
-            _position.X = _position.X > 9.5f || _position.X < -9.5f ? _position.X * -1 : _position.X;
-            _position.Y = _position.Y > 5 || _position.Y < -5 ? _position.Y * -1 : _position.Y;
-            PositionChanged?.Invoke(_position);
+        
+        public virtual void Move(float deltaTime)
+        {
+            if (Acceleration != 0)
+            {           
+                _position += _direction * Acceleration * (_speed * deltaTime);
+             
+                _position.X = _position.X > _screenSize.X || _position.X < -_screenSize.X ? _position.X * -1 : _position.X;
+                _position.Y = _position.Y > _screenSize.Y || _position.Y < -_screenSize.Y ? _position.Y * -1 : _position.Y;
+
+                PositionChanged?.Invoke(_position);
+            }
         }
     }
 }
