@@ -8,9 +8,9 @@ namespace CoreEngine.Core
     {
         void Update(float deltaTime);
         event Action<IObject> Destroyed;
-        event Action<IObject> PositionChanged;
+        event Action<IObject> Updated;
         Vector2 Position { get; }
-        float Size { get; }
+        Vector2 Size { get; }
         bool IsCollision(IObject obj);
         void OnCollision(IObject sender);
     }

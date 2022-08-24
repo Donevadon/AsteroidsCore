@@ -7,5 +7,7 @@ namespace CoreEngine.Core.Configurations
     {
         public float MoveSpeed;
         public float RotateSpeed;
+        public float SizeX;
+        public float SizeY;
     }
 }

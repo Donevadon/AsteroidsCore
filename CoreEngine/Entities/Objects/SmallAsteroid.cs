@@ -9,8 +9,9 @@ namespace CoreEngine.Entities.Objects
 {
     public class SmallAsteroid : GameObject
     {
-        public SmallAsteroid(FragmentAsteroidModel model) : base(new Movement(model.MoveOption.Position, model.MoveOption.Angle, model.MoveOption.Speed, model.MoveOption.ScreenSize),
-            new Rotation(model.MoveOption.Angle, Vector3.UnitZ, model.RotateSpeed))
+        public SmallAsteroid(FragmentAsteroidModel model) 
+            : base(new Movement(model.MoveOption.Position, model.MoveOption.Angle, model.MoveOption.Speed, model.MoveOption.ScreenSize),
+            new Rotation(model.MoveOption.Angle, Vector3.UnitZ, model.RotateSpeed), model.Size)
         {
         }
 

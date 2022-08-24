@@ -19,18 +19,19 @@ namespace CoreEngine.Entities
         }
 
         public Vector2 Position => Movement.Position;
-        public virtual float Size => 0.2f;
+        public Vector2 Size { get;}
         public virtual bool IsCollision(IObject obj)
         {
             var distance = Position - obj.Position;
-            var size = Size / 2 + obj.Size / 2;
+            var sizeX = Size.X / 2 + obj.Size.X / 2;
+            var sizeY = Size.Y / 2 + obj.Size.Y / 2;
 
-            return Math.Abs(distance.X) - size <= 0 && Math.Abs(distance.Y) - size <= 0;
+            return Math.Abs(distance.X) - sizeX <= 0 && Math.Abs(distance.Y) - sizeY <= 0;
         }
 
         public abstract void OnCollision(IObject sender);
 
-        event Action<IObject> IObject.PositionChanged
+        event Action<IObject> IObject.Updated
         {
             add => Collision += value;
             remove => Collision -= value;
@@ -42,21 +43,19 @@ namespace CoreEngine.Entities
             remove => Rotation.RotationChanged -= value;
         }
 
-        protected GameObject(IMovement movement, IRotate rotate)
+        protected GameObject(IMovement movement, IRotate rotate, Vector2 size)
         {
             Movement = movement;
             Rotation = rotate;
-            Movement.PositionChanged += MovementOnPositionChanged;
+            Size = size;
         }
 
-        private void MovementOnPositionChanged(Vector2 obj)
+        public event Action<IObject> Destroyed;
+
+        public virtual void Update(float deltaTime)
         {
             Collision?.Invoke(this);
         }
-        
-        public event Action<IObject> Destroyed;
-
-        public abstract void Update(float deltaTime);
 
         protected virtual void Destroy()
         {

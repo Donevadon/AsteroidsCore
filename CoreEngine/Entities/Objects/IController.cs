@@ -6,5 +6,7 @@ namespace CoreEngine.Entities.Objects
     {
         event Action Move;
         event Action<float> Rotate;
+        event Action Fire;
+        event Action LaunchLaser;
     }
 }

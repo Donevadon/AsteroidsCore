@@ -1,6 +1,5 @@
 ﻿using CoreEngine.Behaviors;
 using CoreEngine.Core;
-using CoreEngine.Core.Configurations;
 using CoreEngine.Core.Models;
 using CoreEngine.Entities.Objects.Factory;
 
@@ -8,38 +7,83 @@ namespace CoreEngine.Entities.Objects
 {
     public class PlayerShip : ControlledGameObject
     {
+        private int _score;
+        private readonly IController _controller;
         private readonly IMetricView _metric;
-        private readonly IAmmunitionFactory _factory;
         private readonly IAccelerationMovement _acceleration;
         private readonly IAccelerationRotate _rotate;
         private readonly IGun _gun;
-        private float _angle;
 
         public PlayerShip(IController controller, IMetricView metric, PlayerModel model)
             : base(controller, new PlayerMovement(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, model.MoveOptions.ScreenSize), 
-                new PlayerRotation(model.MoveOptions.Angle, model.RotateSpeed))
+                new PlayerRotation(model.MoveOptions.Angle, model.RotateSpeed), model.Size)
         {
+            _controller = controller;
             _metric = metric;
-            _factory = model.Factory;
-            metric.UpdateAngle(model.MoveOptions.Angle);
-            metric.UpdatePosition(model.MoveOptions.Position);
-
             _acceleration = Movement as IAccelerationMovement;
             _rotate = Rotation as IAccelerationRotate;
-            Rotation.RotationChanged += rotation => _angle = rotation;
-            Rotation.RotationChanged += _metric.UpdateAngle;
-            Movement.PositionChanged += _metric.UpdatePosition;
+            _gun = new Gun(model.Factory, model.GunOptions, model.MoveOptions.ScreenSize);
+
+            SubscribeMetric();
+            SubscribeController();
+        }
+
+        private void SubscribeMetric()
+        {
+            Destroyed += _metric.OnPlayerDead;
+            Rotation.RotationChanged += _metric.OnUpdateAngle;
+            Movement.PositionChanged += _metric.OnUpdatePosition;
+            _acceleration.SpeedChanged += _metric.OnUpdateSpeed;
+            _gun.LaserTimeUpdated += _metric.OnLaserRollbackTime;
+            _gun.LaserReloaded += _metric.OnUpdateLaserCount;
+            _gun.ScoreAdded += GunOnScoreAdded;
+        }
+
+        private void SubscribeController()
+        {
+            _controller.Fire += ControllerOnFire;
+            _controller.LaunchLaser += ControllerOnLaunchLaser;
+        }
+        
+        private void UnsubscribeMetric()
+        {
+            Destroyed -= _metric.OnPlayerDead;
+            Rotation.RotationChanged -= _metric.OnUpdateAngle;
+            Movement.PositionChanged -= _metric.OnUpdatePosition;
+            _acceleration.SpeedChanged -= _metric.OnUpdateSpeed;
+            _gun.LaserTimeUpdated -= _metric.OnLaserRollbackTime;
+            _gun.LaserReloaded -= _metric.OnUpdateLaserCount;
+            _gun.ScoreAdded -= GunOnScoreAdded;
+        }
+
+        private void UnsubscribeController()
+        {
+            _controller.Fire -= ControllerOnFire;
+            _controller.LaunchLaser -= ControllerOnLaunchLaser;
+        }
+        
+        private void GunOnScoreAdded()
+        {
+            _metric.ScoreUpdate(++_score);
+        }
+
+        private void ControllerOnLaunchLaser()
+        {
+            _gun.LaunchLaser(Movement.Position, Rotation.Angle);
+        }
+
+        private void ControllerOnFire()
+        {
+            _gun.Fire(Movement.Position, Rotation.Angle);
         }
 
         public override void Update(float deltaTime)
         {
             Movement.Move(deltaTime);
             Rotation.Rotate(deltaTime);
-        }
-
-        public void Fire()
-        {
-            _factory.GetAmmo(null);
+            _gun.Reload();
+            
+            base.Update(deltaTime);
         }
 
         protected override void OnRotate(float acceleration)
@@ -50,26 +94,25 @@ namespace CoreEngine.Entities.Objects
         protected override void OnMove()
         {
             _acceleration.Acceleration += 0.02f;
-            Movement.CalculateDirection(_angle);
+            Movement.CalculateDirection(Rotation.Angle);
         }
 
         public override bool IsCollision(IObject obj)
         {
-            return !(obj is Bullet) && base.IsCollision(obj);
+            return !(obj is Bullet) && !(obj is Laser) && base.IsCollision(obj);
         }
 
         public override void OnCollision(IObject sender)
         {
-            
+            Destroy();
         }
-    }
 
-    internal interface IAccelerationRotate : IRotate
-    {
-        float Acceleration { get; set; }
-    }
-
-    internal interface IGun
-    {
+        protected override void Destroy()
+        {
+            base.Destroy();
+            
+            UnsubscribeController();
+            UnsubscribeMetric();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using CoreEngine.Core.Configurations;
+﻿using System.Numerics;
+using CoreEngine.Core.Configurations;
 
 namespace CoreEngine.Core.Models
 {
@@ -9,5 +10,6 @@ namespace CoreEngine.Core.Models
        public float RotateSpeed { get; set; }
        public int FragmentCount { get; set; }
        public FragmentAsteroidOptions FragmentOptions { get; set; }
+       public Vector2 Size { get; set; }
     }
 }

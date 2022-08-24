@@ -15,7 +15,8 @@ namespace CoreEngine.Behaviors
                 if (value > 1)
                 {
                     Acceleration = 1;
-                }else if (value < -1)
+                }
+                else if (value < -1)
                 {
                     Acceleration = -1;
                 }

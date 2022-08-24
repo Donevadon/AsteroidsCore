@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 
 namespace CoreEngine.Core.Configurations
 {
     [Serializable]
-    public class FragmentAsteroidOptions
+    public class BulletOptions
     {
-        public float Acceleration;
-        public float MaxRotateSpeed;
+        public float Speed;
+        public float ReloadTime;
         public float SizeX;
         public float SizeY;
     }

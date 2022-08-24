@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using CoreEngine.Core;
 using CoreEngine.Core.Configurations;
 using CoreEngine.Core.Factory;
@@ -28,10 +29,12 @@ namespace CoreEngine.Entities.Objects.Factory
 
     public interface IMetricView
     {
-        void UpdatePosition(Vector2 position);
-        void UpdateAngle(float angle);
-        void UpdateSpeed(float speed);
-        void UpdateLaserCount(int count);
-        void LaserRollbackTime(int time);
+        void OnUpdatePosition(Vector2 position);
+        void OnUpdateAngle(float angle);
+        void OnUpdateSpeed(float speed);
+        void OnUpdateLaserCount(int count);
+        void OnLaserRollbackTime(TimeSpan time);
+        void OnPlayerDead(IObject sender);
+        void ScoreUpdate(int score);
     }
 }

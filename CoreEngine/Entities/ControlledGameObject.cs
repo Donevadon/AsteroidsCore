@@ -1,3 +1,4 @@
+using System.Numerics;
 using CoreEngine.Entities.Objects;
 
 namespace CoreEngine.Entities
@@ -6,7 +7,7 @@ namespace CoreEngine.Entities
     {
         private readonly IController _controller;
 
-        protected ControlledGameObject(IController controller, IMovement movement, IRotate rotate) : base(movement, rotate)
+        protected ControlledGameObject(IController controller, IMovement movement, IRotate rotate, Vector2 size) : base(movement, rotate, size)
         {
             _controller = controller;
 

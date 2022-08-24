@@ -9,16 +9,16 @@ namespace CoreEngine.Core
 
         public void Add(IObject obj)
         {
-            obj.PositionChanged += GameObjectOnPositionChanged;
+            obj.Updated += GameObjectOnUpdated;
             obj.Destroyed += sender =>
             {
                 _objects.Remove(sender);
-                obj.PositionChanged -= GameObjectOnPositionChanged;
+                obj.Updated -= GameObjectOnUpdated;
             };
             _objects.Add(obj);
         }
         
-        private void GameObjectOnPositionChanged(IObject sender)
+        private void GameObjectOnUpdated(IObject sender)
         {
             var collisions = _objects
                 .Where(item => !item.Equals(sender)
@@ -27,6 +27,7 @@ namespace CoreEngine.Core
             foreach (var collision in collisions)
             {
                 sender.OnCollision(collision);
+                collision.OnCollision(sender);
             }
         }
     }

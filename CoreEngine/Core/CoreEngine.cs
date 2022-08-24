@@ -9,8 +9,8 @@ namespace CoreEngine.Core
     public abstract class CoreEngine
     {
         public event Action<float> FrameUpdated;
-        private DateTime _asteroidTime;
-        private DateTime _alienTime;
+        private DateTime _asteroidTime = DateTime.Now;
+        private DateTime _alienTime = DateTime.Now;
         private readonly Options _options;
         private readonly PlayerOptions _playerOptions;
         private readonly AsteroidOptions _asteroidOptions;
@@ -30,7 +30,6 @@ namespace CoreEngine.Core
         protected abstract IFragmentsFactory FragmentsFactory { get; }
         protected abstract IAmmunitionFactory AmmunitionFactory { get; }
 
-
         public void Start()
         {
             CreatePlayer();
@@ -39,39 +38,44 @@ namespace CoreEngine.Core
         public void UpdateFrame(float deltaTime)
         {
             FrameUpdated?.Invoke(deltaTime);
-            Timer(ref _asteroidTime, TimeSpan.FromSeconds(3), SpawnAsteroids);
+            Timer(ref _asteroidTime, TimeSpan.FromSeconds(3), SpawnAsteroid);
             Timer(ref _alienTime, TimeSpan.FromMinutes(1), SpawnAliens);
         }
 
         private void CreatePlayer()
         {
-            var moveOptions = new MoveOptions(new Vector2(_playerOptions.StartPositionX, _playerOptions.StartPositionY), _playerOptions.MoveSpeed,
+            var moveOptions = new MoveOptions(new Vector2(_playerOptions.StartPositionX, _playerOptions.StartPositionY),
+                _playerOptions.MoveSpeed,
                 _playerOptions.StartAngle, _screenSize);
             var model = new PlayerModel()
             {
                 Factory = AmmunitionFactory,
                 MoveOptions = moveOptions,
-                RotateSpeed = _playerOptions.RotateSpeed
+                RotateSpeed = _playerOptions.RotateSpeed,
+                GunOptions = _playerOptions.GunOptions,
+                Size = new Vector2(_playerOptions.SizeX, _playerOptions.SizeY)
             };
             _ = Pool.GetPlayer(model);
         }
 
-        private void SpawnAsteroids()
+        private void SpawnAsteroid()
         {
             var random = new Random();
-            var options = new MoveOptions(new Vector2(-_screenSize.X, _screenSize.Y), _options.AsteroidOptions.MoveSpeed, random.Next(0,360), _screenSize);
+            var options = new MoveOptions(new Vector2(-_screenSize.X, _screenSize.Y),
+                _options.AsteroidOptions.MoveSpeed, random.Next(0, 360), _screenSize);
             var model = new AsteroidModel()
             {
                 Factory = FragmentsFactory,
                 FragmentCount = _asteroidOptions.FragmentCount,
                 FragmentOptions = _asteroidOptions.FragmentAsteroidOptions,
                 MoveOptions = options,
-                RotateSpeed = _asteroidOptions.RotateSpeed
+                RotateSpeed = _asteroidOptions.RotateSpeed,
+                Size = new Vector2(_asteroidOptions.SizeX, _asteroidOptions.SizeY)
             };
-            _ = Pool.GetAsteroid(model); 
+            _ = Pool.GetAsteroid(model);
         }
 
-        private void Timer(ref DateTime lastTime, TimeSpan time, Action action)
+        private static void Timer(ref DateTime lastTime, TimeSpan time, Action action)
         {
             var delta = DateTime.Now - lastTime;
             if (delta > time)
@@ -84,22 +88,26 @@ namespace CoreEngine.Core
         private void SpawnAliens()
         {
             var random = new Random();
-            var options = new MoveOptions(new Vector2(_screenSize.X, -_screenSize.Y), _alienOptions.MoveSpeed, random.Next(0,360), _screenSize);
+            var options = new MoveOptions(new Vector2(_screenSize.X, -_screenSize.Y), _alienOptions.MoveSpeed,
+                random.Next(0, 360), _screenSize);
             var model = new AlienModel()
             {
                 Controller = new Mock(),
                 MoveOptions = options,
-                RotateSpeed = _alienOptions.RotateSpeed
+                RotateSpeed = _alienOptions.RotateSpeed,
+                Size = new Vector2(_alienOptions.SizeX, _alienOptions.SizeY),
             };
             _ = Pool.GetAlien(model);
-            
         }
-
     }
 
     internal class Mock : IController
     {
+        private readonly IObject _player;
+        private readonly IObject _alien;
         public event Action Move;
         public event Action<float> Rotate;
+        public event Action Fire;
+        public event Action LaunchLaser;
     }
 }

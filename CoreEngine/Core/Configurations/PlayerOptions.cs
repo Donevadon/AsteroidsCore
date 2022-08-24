@@ -11,5 +11,8 @@ namespace CoreEngine.Core.Configurations
         public float MoveSpeed;
         public float StartAngle;
         public float RotateSpeed;
+        public GunOptions GunOptions;
+        public float SizeX;
+        public float SizeY;
     }
 }

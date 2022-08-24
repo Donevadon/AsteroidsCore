@@ -9,5 +9,7 @@ namespace CoreEngine.Core.Configurations
         public float RotateSpeed;
         public int FragmentCount;
         public FragmentAsteroidOptions FragmentAsteroidOptions;
+        public float SizeX;
+        public float SizeY;
     }
 }

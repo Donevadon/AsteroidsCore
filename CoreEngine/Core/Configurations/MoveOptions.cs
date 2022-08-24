@@ -1,7 +1,9 @@
+using System;
 using System.Numerics;
 
 namespace CoreEngine.Core.Configurations
 {
+    [Serializable]
     public class MoveOptions
     {
         public MoveOptions(Vector2 position, float speed, float angle, Vector2 screenSize)

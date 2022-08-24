@@ -17,7 +17,7 @@ namespace CoreEngine.Entities.Objects
 
         public Asteroid(AsteroidModel model)
             : base(new Movement(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, model.MoveOptions.ScreenSize),
-                new Rotation(model.MoveOptions.Angle, Vector3.UnitZ, model.RotateSpeed))
+                new Rotation(model.MoveOptions.Angle, Vector3.UnitZ, model.RotateSpeed), model.Size)
         {
             _factory = model.Factory;
             _fragmentCount = model.FragmentCount;
@@ -25,9 +25,7 @@ namespace CoreEngine.Entities.Objects
             _screenSize = model.MoveOptions.ScreenSize;
             _speed = model.MoveOptions.Speed;
         }
-
-        public override float Size => 0.5f;
-
+        
         public override void OnCollision(IObject sender)
         {
             Destroy();
@@ -45,6 +43,7 @@ namespace CoreEngine.Entities.Objects
         {
             Movement.Move(deltaTime);
             Rotation.Rotate(deltaTime);
+            base.Update(deltaTime);
         }
 
         protected override void Destroy()
@@ -59,7 +58,8 @@ namespace CoreEngine.Entities.Objects
                 var model = new FragmentAsteroidModel()
                 {
                     MoveOption = option,
-                    RotateSpeed =  (float) random.NextDouble() * _options.MaxRotateSpeed
+                    RotateSpeed =  (float) random.NextDouble() * _options.MaxRotateSpeed,
+                    Size = new Vector2(_options.SizeX, _options.SizeY)
                 };
                 
                 _factory.GetSmallAsteroid(model);
