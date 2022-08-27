@@ -8,9 +8,22 @@ namespace CoreEngine.Behaviors
     {
         private readonly Vector3 _direction;
         private readonly float _speed;
+        private float _angle;
         
-        public event Action<float> RotationChanged;
-        public float Angle { get; private set; }
+        public event Action<float>? RotationChanged;
+        public float Angle
+        {
+            get => _angle;
+            private set
+            {
+                _angle = value switch
+                {
+                    > 360 => 0,
+                    < 0 => 360,
+                    _ => value
+                };
+            } 
+        }
 
         protected virtual float Acceleration { get; set; } = 1f;
 
@@ -23,23 +36,11 @@ namespace CoreEngine.Behaviors
         
         public virtual void Rotate(float deltaTime)
         {
-            if (Acceleration != 0)
-            {
-                Angle += (_direction * Acceleration * (_speed * deltaTime)).Z;
-
-                if (Angle > 180)
-                {
-                    var a = Angle - 180;
-                    Angle = -180 + a;
-                }
-                else if (Angle < -180)
-                {
-                    var a = -180 - Angle;
-                    Angle = 180 - a;
-                }
-
-                RotationChanged?.Invoke(Angle);
-            }
+            if (Acceleration == 0) return;
+            
+            Angle += (_direction * Acceleration * (_speed * deltaTime)).Z;
+                
+            RotationChanged?.Invoke(Angle);
         }
     }
 }

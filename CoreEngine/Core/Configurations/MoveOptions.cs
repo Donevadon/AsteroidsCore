@@ -4,19 +4,11 @@ using System.Numerics;
 namespace CoreEngine.Core.Configurations
 {
     [Serializable]
-    public class MoveOptions
+    public record MoveOptions(Vector2 Position, float Speed, float Angle, Vector2 ScreenSize)
     {
-        public MoveOptions(Vector2 position, float speed, float angle, Vector2 screenSize)
-        {
-            Position = position;
-            Speed = speed;
-            Angle = angle;
-            ScreenSize = screenSize;
-        }
-
-        public Vector2 Position { get; }
-        public float Speed { get; }
-        public float Angle { get; }
-        public Vector2 ScreenSize { get; set; }
+        public Vector2 Position { get; } = Position;
+        public float Speed { get; } = Speed;
+        public float Angle { get; } = Angle;
+        public Vector2 ScreenSize { get; set; } = ScreenSize;
     }
 }

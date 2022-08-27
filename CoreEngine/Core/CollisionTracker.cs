@@ -5,7 +5,7 @@ namespace CoreEngine.Core
 {
     public class CollisionTracker
     {
-        private readonly List<IObject> _objects = new List<IObject>();
+        private readonly List<IObject> _objects = new();
 
         public void Add(IObject obj)
         {

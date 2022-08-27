@@ -11,7 +11,8 @@ namespace CoreEngine.Core
         event Action<IObject> Updated;
         Vector2 Position { get; }
         Vector2 Size { get; }
-        bool IsCollision(IObject obj);
+        float Angle { get; }
+        bool IsCollision(IObject? obj);
         void OnCollision(IObject sender);
     }
 }

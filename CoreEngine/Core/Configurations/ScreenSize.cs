@@ -1,11 +1,12 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
-namespace CoreEngine.Core.Configurations
+namespace CoreEngine.Core.Configurations;
+
+[Serializable]
+[SuppressMessage("ReSharper", "UnassignedField.Global")]
+public record ScreenSize
 {
-    [Serializable]
-    public class ScreenSize
-    {
-        public float Height;
-        public float Width;
-    }
+    public float Height;
+    public float Width;
 }

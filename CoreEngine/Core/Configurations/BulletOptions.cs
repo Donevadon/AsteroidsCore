@@ -1,13 +1,15 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
+#pragma warning disable CS8618
 
 namespace CoreEngine.Core.Configurations
 {
     [Serializable]
-    public class BulletOptions
+    [SuppressMessage("ReSharper", "UnassignedField.Global")]
+    public record BulletOptions
     {
         public float Speed;
         public float ReloadTime;
-        public float SizeX;
-        public float SizeY;
+        public Vector2Option Size;
     }
 }

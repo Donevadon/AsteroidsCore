@@ -1,27 +1,29 @@
-﻿using CoreEngine.Behaviors;
+﻿using System;
+using CoreEngine.Behaviors;
 using CoreEngine.Core;
 using CoreEngine.Core.Models;
 using CoreEngine.Entities.Objects.Factory;
+using CoreEngine.Guns;
 
 namespace CoreEngine.Entities.Objects
 {
     public class PlayerShip : ControlledGameObject
     {
         private int _score;
-        private readonly IController _controller;
+        private readonly IController? _controller;
         private readonly IMetricView _metric;
         private readonly IAccelerationMovement _acceleration;
         private readonly IAccelerationRotate _rotate;
         private readonly IGun _gun;
 
-        public PlayerShip(IController controller, IMetricView metric, PlayerModel model)
-            : base(controller, new PlayerMovement(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, model.MoveOptions.ScreenSize), 
-                new PlayerRotation(model.MoveOptions.Angle, model.RotateSpeed), model.Size)
+        public PlayerShip(IController? controller, IMetricView metric, PlayerModel model)
+            : base(controller, new MovementWithAcceleration(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, model.MoveOptions.ScreenSize, model.Breaking), 
+                new RotationWithAcceleration(model.MoveOptions.Angle, model.RotateSpeed), model.Size)
         {
             _controller = controller;
             _metric = metric;
-            _acceleration = Movement as IAccelerationMovement;
-            _rotate = Rotation as IAccelerationRotate;
+            _acceleration = Movement as IAccelerationMovement ?? throw new ArgumentException();
+            _rotate = Rotation as IAccelerationRotate ?? throw new ArgumentException();
             _gun = new Gun(model.Factory, model.GunOptions, model.MoveOptions.ScreenSize);
 
             SubscribeMetric();
@@ -97,7 +99,7 @@ namespace CoreEngine.Entities.Objects
             Movement.CalculateDirection(Rotation.Angle);
         }
 
-        public override bool IsCollision(IObject obj)
+        public override bool IsCollision(IObject? obj)
         {
             return !(obj is Bullet) && !(obj is Laser) && base.IsCollision(obj);
         }

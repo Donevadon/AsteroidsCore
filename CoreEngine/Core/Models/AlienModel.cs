@@ -1,6 +1,7 @@
 using System.Numerics;
 using CoreEngine.Core.Configurations;
 using CoreEngine.Entities.Objects;
+#pragma warning disable CS8618
 
 namespace CoreEngine.Core.Models
 {

@@ -4,37 +4,34 @@ using CoreEngine.Entities;
 
 namespace CoreEngine.Behaviors
 {
-    public class PlayerMovement : Movement, IAccelerationMovement
+    public class MovementWithAcceleration : Movement, IAccelerationMovement
     {
         private readonly float _speed;
-        private const float Braking = 0.001f;
+        private readonly float _breaking;
 
         protected override float Acceleration { get; set; }
-        public event Action<float> SpeedChanged;
+        public event Action<float>? SpeedChanged;
 
         float IAccelerationMovement.Acceleration
         {
             get => Acceleration;
             set
             {
-                if (value > 1)
+                Acceleration = value switch
                 {
-                    Acceleration = 1;
-                }else if (value < 0)
-                {
-                    Acceleration = 0;
-                }
-                else
-                {
-                    Acceleration = value;
-                }
+                    > 1 => 1,
+                    < 0 => 0,
+                    _ => value
+                };
                 SpeedChanged?.Invoke(Acceleration * _speed);
             }
         }
         
-        public PlayerMovement(Vector2 startPosition, float direction, float speed, Vector2 screenSize) : base(startPosition, direction, speed, screenSize)
+        public MovementWithAcceleration(Vector2 startPosition, float direction, float speed, Vector2 screenSize, float breaking)
+            : base(startPosition, direction, speed, screenSize)
         {
             _speed = speed;
+            _breaking = breaking;
         }
 
         public override void Move(float deltaTime)
@@ -42,7 +39,7 @@ namespace CoreEngine.Behaviors
             base.Move(deltaTime);
             
             var controller = this as IAccelerationMovement;
-            controller.Acceleration -= Braking;
+            controller.Acceleration -= _breaking;
         }
     }
 }

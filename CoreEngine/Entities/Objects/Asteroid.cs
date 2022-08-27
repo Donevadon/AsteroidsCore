@@ -31,11 +31,11 @@ namespace CoreEngine.Entities.Objects
             Destroy();
         }
 
-        public override bool IsCollision(IObject obj)
+        public override bool IsCollision(IObject? obj)
         {
-            return !(obj is SmallAsteroid) 
-                   && !(obj is Alien) 
-                   && !(obj is Asteroid) 
+            return obj is not SmallAsteroid 
+                   && obj is not Alien 
+                   && obj is not Asteroid 
                    && base.IsCollision(obj);
         }
 
@@ -55,11 +55,12 @@ namespace CoreEngine.Entities.Objects
                 var random = new Random();
                 var option = new MoveOptions(Movement.Position, _speed + _options.Acceleration, random.Next(0, 360),
                     _screenSize);
+                var size = _options.Size;
                 var model = new FragmentAsteroidModel()
                 {
                     MoveOption = option,
                     RotateSpeed =  (float) random.NextDouble() * _options.MaxRotateSpeed,
-                    Size = new Vector2(_options.SizeX, _options.SizeY)
+                    Size = new Vector2(size.X, size.Y)
                 };
                 
                 _factory.GetSmallAsteroid(model);

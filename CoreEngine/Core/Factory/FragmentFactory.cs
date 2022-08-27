@@ -1,7 +1,4 @@
-﻿using System.Numerics;
-using CoreEngine.Core.Configurations;
-using CoreEngine.Core.Models;
-using CoreEngine.Entities.Objects;
+﻿using CoreEngine.Core.Models;
 
 namespace CoreEngine.Core.Factory
 {
@@ -11,13 +8,13 @@ namespace CoreEngine.Core.Factory
         {
         }
         
-        public IObject GetSmallAsteroid(FragmentAsteroidModel model)
+        public IObject? GetSmallAsteroid(FragmentAsteroidModel model)
         {
             var asteroid = CreateSmallAsteroid(model);
             InitInEngine(asteroid);
             return asteroid;
         }
 
-        protected abstract IObject CreateSmallAsteroid(FragmentAsteroidModel model);
+        protected abstract IObject? CreateSmallAsteroid(FragmentAsteroidModel model);
     }
 }

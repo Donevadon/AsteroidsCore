@@ -7,6 +7,6 @@ namespace CoreEngine.Core
 {
     public interface IFragmentsFactory
     {
-        IObject GetSmallAsteroid(FragmentAsteroidModel model);
+        IObject? GetSmallAsteroid(FragmentAsteroidModel model);
     }
 }

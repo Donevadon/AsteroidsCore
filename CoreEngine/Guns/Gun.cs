@@ -2,47 +2,49 @@
 using System.Numerics;
 using CoreEngine.Core;
 using CoreEngine.Core.Configurations;
+using CoreEngine.Entities.Objects;
+using CoreEngine.Guns.MultiShot;
+using ChargedGun = CoreEngine.Guns.SingleShot.ChargedGun;
 
-namespace CoreEngine.Entities.Objects
+namespace CoreEngine.Guns
 {
     public class Gun : IGun
     {
         private readonly Vector2 _screenSize;
-        private IGunBehavior _bulletGun;
-        private IGunBehavior _laserGun;
+        private GunState _bulletGun;
+        private GunState _laserGun;
         private readonly BulletOptions _bulletOptions;
         private readonly LaserOptions _laserOptions;
-        private readonly ReloadTimer _timer;
         
-        public event Action<TimeSpan> LaserTimeUpdated
+        public event Action<TimeSpan>? LaserTimeUpdated
         {
-            add => _timer.TimeUpdated += value;
-            remove => _timer.TimeUpdated += value;
+            add => _laserGun.TimeUpdated += value;
+            remove => _laserGun.TimeUpdated -= value;
+        }
+
+        public event Action<int>? LaserReloaded
+        {
+            add => _laserGun.Reloaded += value;
+            remove => _laserGun.Reloaded -= value;
         }
 
         public event Action ScoreAdded;
 
-        public event Action<int> LaserReloaded;
 
         public Gun(IAmmunitionFactory modelFactory, GunOptions options, Vector2 screenSize)
         {
             _screenSize = screenSize;
             _bulletOptions = options.BulletOptions;
             _laserOptions = options.LaserOptions;
-            _timer = new ReloadTimer();
-            _bulletGun = new ChargedGunBehavior(modelFactory);
-            _laserGun = new DischargedMultiChargingGun(modelFactory, _timer);
-            _timer.Reloaded += count => LaserReloaded?.Invoke(count);
+            _bulletGun = new ChargedGun(modelFactory);
+            _laserGun = new DischargedGun(modelFactory);
         }
-
-        private void OnScoreAdded()
-        {
-            ScoreAdded?.Invoke();
-        }
+        
 
         public void Fire(Vector2 position, float angle)
         {
-            _bulletGun = _bulletGun.Fire(new MoveOptions(position, _bulletOptions.Speed, angle, _screenSize), new Vector2(_bulletOptions.SizeX, _bulletOptions.SizeY), ScoreAdded);
+            var size = _bulletOptions.Size;
+            _bulletGun = _bulletGun.Fire(new MoveOptions(position, _bulletOptions.Speed, angle, _screenSize), new Vector2(size.X, size.Y), ScoreAdded);
         }
 
         public void Reload()
@@ -53,8 +55,9 @@ namespace CoreEngine.Entities.Objects
 
         public void LaunchLaser(Vector2 movementPosition, float rotationAngle)
         {
+            var size = _laserOptions.Size;
             _laserGun = _laserGun.Fire(new MoveOptions(movementPosition, 0, rotationAngle, _screenSize),
-                new Vector2(_laserOptions.SizeX, _laserOptions.SizeY), ScoreAdded);
+                new Vector2(size.X, size.Y), ScoreAdded);
         }
     }
 }

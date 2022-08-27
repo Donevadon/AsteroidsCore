@@ -1,4 +1,5 @@
-﻿using CoreEngine.Behaviors;
+﻿using System;
+using CoreEngine.Behaviors;
 using CoreEngine.Core;
 using CoreEngine.Core.Models;
 
@@ -9,9 +10,9 @@ namespace CoreEngine.Entities.Objects
         private readonly IAccelerationRotate _accelerationRotate;
         public Alien(AlienModel model)
             : base(model.Controller, new Movement(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, model.MoveOptions.ScreenSize),
-                new PlayerRotation(model.MoveOptions.Angle, model.RotateSpeed), model.Size)
+                new RotationWithAcceleration(model.MoveOptions.Angle, model.RotateSpeed), model.Size)
         {
-            _accelerationRotate = Rotation as IAccelerationRotate;
+            _accelerationRotate = Rotation as IAccelerationRotate ?? throw new ArgumentException();
         }
 
         public override void OnCollision(IObject sender)

@@ -7,9 +7,9 @@ namespace CoreEngine.Entities.Objects
     public class Laser : GameObject
     {
         private readonly Vector2 _size;
-        private readonly Action _addScore;
+        private readonly Action? _addScore;
         private DateTime _lifeTime = DateTime.Now;
-        public Laser(IMovement movement, IRotate rotate, Vector2 size, Action addScore) : base(movement, rotate, size)
+        public Laser(IMovement movement, IRotate rotate, Vector2 size, Action? addScore) : base(movement, rotate, size)
         {
             _size = size;
             _addScore = addScore;
@@ -20,13 +20,13 @@ namespace CoreEngine.Entities.Objects
             _addScore();
         }
 
-        public override bool IsCollision(IObject obj)
+        public override bool IsCollision(IObject? obj)
         {
             var a = Movement.Direction * _size.X + Movement.Position;
             var p = Vector2.Distance(a, Position);
             var p1 = Vector2.Distance(a, obj.Position) + Vector2.Distance(Position, obj.Position);
 
-            return !(obj is PlayerShip) && !(obj is Bullet) && Math.Abs(p - p1) < 0.01f;
+            return !(obj is PlayerShip) && !(obj is Bullet) && Math.Abs(p - p1) < 0.04f;
         }
 
         public override void Update(float deltaTime)

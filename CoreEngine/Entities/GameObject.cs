@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using CoreEngine.Behaviors;
 using CoreEngine.Core;
 
 namespace CoreEngine.Entities
@@ -20,7 +21,9 @@ namespace CoreEngine.Entities
 
         public Vector2 Position => Movement.Position;
         public Vector2 Size { get;}
-        public virtual bool IsCollision(IObject obj)
+        public float Angle => Rotation.Angle;
+
+        public virtual bool IsCollision(IObject? obj)
         {
             var distance = Position - obj.Position;
             var sizeX = Size.X / 2 + obj.Size.X / 2;

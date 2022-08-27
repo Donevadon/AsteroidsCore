@@ -10,7 +10,7 @@ namespace CoreEngine.Behaviors
         {
         }
 
-        public event Action<float> RotationChanged;
+        public event Action<float>? RotationChanged;
         public float Angle => 0;
     }
 }

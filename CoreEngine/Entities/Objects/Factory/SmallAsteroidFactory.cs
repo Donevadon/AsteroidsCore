@@ -12,7 +12,7 @@ namespace CoreEngine.Entities.Objects.Factory
         {
         }
         
-        protected override IObject CreateSmallAsteroid(FragmentAsteroidModel model) =>
+        protected override IObject? CreateSmallAsteroid(FragmentAsteroidModel model) =>
             new SmallAsteroid(model);
     }
 }

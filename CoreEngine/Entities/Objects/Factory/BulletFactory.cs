@@ -13,10 +13,10 @@ namespace CoreEngine.Entities.Objects.Factory
         {
         }
 
-        protected override IObject CreateLaser(MoveOptions moveOptions, Vector2 size, Action addScore) => new Laser(
-            new PlayerMovement(moveOptions.Position, moveOptions.Angle, 0, moveOptions.ScreenSize), new DoNotRotation(),
+        protected override IObject? CreateLaser(MoveOptions moveOptions, Vector2 size, Action? addScore) => new Laser(
+            new MovementWithAcceleration(moveOptions.Position, moveOptions.Angle, 0, moveOptions.ScreenSize, 0), new DoNotRotation(),
             size, addScore);
 
-        protected override IObject CreateAmmo(MoveOptions moveOptions, Vector2 size, Action addScore) => new Bullet(moveOptions, size, addScore);
+        protected override IObject? CreateAmmo(MoveOptions moveOptions, Vector2 size, Action? addScore) => new Bullet(moveOptions, size, addScore);
     }
 }

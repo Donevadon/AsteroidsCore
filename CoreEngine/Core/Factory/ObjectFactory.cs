@@ -8,7 +8,7 @@ namespace CoreEngine.Core.Factory
         {
         }
         
-        public IObject GetPlayer(PlayerModel model)
+        public IObject? GetPlayer(PlayerModel model)
         {
             var ship = CreatePlayer(model);
             InitInEngine(ship);
@@ -16,10 +16,10 @@ namespace CoreEngine.Core.Factory
             return ship;
         }
 
-        protected abstract IObject CreatePlayer(PlayerModel model);
+        protected abstract IObject? CreatePlayer(PlayerModel model);
         
 
-        public IObject GetAsteroid(AsteroidModel model)
+        public IObject? GetAsteroid(AsteroidModel model)
         {
             var asteroid = CreateAsteroid(model);
             InitInEngine(asteroid);
@@ -27,7 +27,7 @@ namespace CoreEngine.Core.Factory
             return asteroid;
         }
 
-        public IObject GetAlien(AlienModel model)
+        public IObject? GetAlien(AlienModel model)
         {
             var alien = CreateAlien(model);
             InitInEngine(alien);
@@ -35,8 +35,8 @@ namespace CoreEngine.Core.Factory
             return alien;
         }
 
-        protected abstract IObject CreateAlien(AlienModel model);
+        protected abstract IObject? CreateAlien(AlienModel model);
 
-        protected abstract IObject CreateAsteroid(AsteroidModel model);
+        protected abstract IObject? CreateAsteroid(AsteroidModel model);
     }
 }
