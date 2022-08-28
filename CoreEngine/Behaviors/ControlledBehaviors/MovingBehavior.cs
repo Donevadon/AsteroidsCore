@@ -1,5 +1,4 @@
 using System;
-using CoreEngine.Entities.Objects;
 using CoreEngine.Entities.Objects.ControlledObjects;
 
 namespace CoreEngine.Behaviors.ControlledBehaviors
@@ -43,6 +42,8 @@ namespace CoreEngine.Behaviors.ControlledBehaviors
         {
             _controller.Rotate -= OnRotate;
             _controller.Move -= OnMove;
+            _movement.Dispose();
+            _rotate.Dispose();
         }
     }
 }

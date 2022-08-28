@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace CoreEngine.Entities
 {
-    public interface IRotate
+    public interface IRotate : IDisposable
     {
         void Rotate(float deltaTime);
         event Action<float> RotationChanged;

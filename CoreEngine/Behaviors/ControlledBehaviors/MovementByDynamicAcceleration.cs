@@ -1,44 +1,50 @@
 ﻿using System;
 using System.Numerics;
 
-namespace CoreEngine.Behaviors.ControlledBehaviors
+namespace CoreEngine.Behaviors.ControlledBehaviors;
+
+public class MovementByDynamicAcceleration : MovementByStaticAcceleration, IAccelerationMovement
 {
-    public class MovementByDynamicAcceleration : MovementByStaticAcceleration, IAccelerationMovement
+    private readonly float _speed;
+    private readonly float _breaking;
+
+    protected override float Acceleration { get; set; }
+    public event Action<float>? SpeedChanged;
+
+    float IAccelerationMovement.Acceleration
     {
-        private readonly float _speed;
-        private readonly float _breaking;
-
-        protected override float Acceleration { get; set; }
-        public event Action<float>? SpeedChanged;
-
-        float IAccelerationMovement.Acceleration
+        get => Acceleration;
+        set
         {
-            get => Acceleration;
-            set
+            Acceleration = value switch
             {
-                Acceleration = value switch
-                {
-                    > 1 => 1,
-                    < 0 => 0,
-                    _ => value
-                };
-                SpeedChanged?.Invoke(Acceleration * _speed);
-            }
+                > 1 => 1,
+                < 0 => 0,
+                _ => value
+            };
+            SpeedChanged?.Invoke(Acceleration * _speed);
         }
+    }
         
-        public MovementByDynamicAcceleration(Vector2 startPosition, float direction, float speed, Vector2 screenSize, float breaking)
-            : base(startPosition, direction, speed, 0, screenSize)
-        {
-            _speed = speed;
-            _breaking = breaking;
-        }
+    public MovementByDynamicAcceleration(Vector2 startPosition, float direction, float speed, Vector2 screenSize, float breaking)
+        : base(startPosition, direction, speed, 0, screenSize)
+    {
+        _speed = speed;
+        _breaking = breaking;
+    }
 
-        public override void Move(float deltaTime)
-        {
-            base.Move(deltaTime);
+    public override void Move(float deltaTime)
+    {
+        base.Move(deltaTime);
             
-            var controller = this as IAccelerationMovement;
-            controller.Acceleration -= _breaking;
-        }
+        var controller = this as IAccelerationMovement;
+        controller.Acceleration -= _breaking;
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        SpeedChanged = null;
     }
 }

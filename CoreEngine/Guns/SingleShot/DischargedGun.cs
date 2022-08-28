@@ -1,7 +1,5 @@
 using System;
-using System.Numerics;
 using CoreEngine.Core;
-using CoreEngine.Core.Configurations;
 using CoreEngine.Core.Models;
 
 namespace CoreEngine.Guns.SingleShot;

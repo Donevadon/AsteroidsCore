@@ -31,7 +31,6 @@ namespace CoreEngine.Guns
 
         public event Action? ScoreAdded;
 
-
         public Gun(IAmmunitionFactory modelFactory, GunOptions options, Vector2 screenSize)
         {
             _screenSize = screenSize;
@@ -40,7 +39,6 @@ namespace CoreEngine.Guns
             _bulletGun = new ChargedGun(modelFactory);
             _laserGun = new DischargedGun(modelFactory);
         }
-        
 
         public void Fire(Vector2 position, float angle)
         {
@@ -72,6 +70,13 @@ namespace CoreEngine.Guns
                 LifeTime = _laserOptions.LifeTime
             };
             _laserGun = _laserGun.Fire(model);
+        }
+
+        public void Dispose()
+        {
+            ScoreAdded = null;
+            _laserGun.Dispose();
+            _bulletGun.Dispose();
         }
     }
 }

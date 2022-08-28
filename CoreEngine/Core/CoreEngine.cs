@@ -132,10 +132,12 @@ namespace CoreEngine.Core
 
         public void Dispose()
         {
+            Disposed?.Invoke();
             _pool.ObjectCreated -= OnObjectCreated;
             _fragments.ObjectCreated -= OnObjectCreated;
             _ammunition.ObjectCreated -= OnObjectCreated;
-            Disposed?.Invoke();
+            FrameUpdated = null;
+            Disposed = null;
         }
     }
 }

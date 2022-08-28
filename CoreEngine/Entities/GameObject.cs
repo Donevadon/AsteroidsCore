@@ -58,6 +58,7 @@ namespace CoreEngine.Entities
         {
             Destroyed?.Invoke(this);
             Destroyed = null;
+            Updated = null;
         }
 
         public virtual void Dispose()

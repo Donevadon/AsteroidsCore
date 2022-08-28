@@ -49,5 +49,10 @@ namespace CoreEngine.Behaviors
                 
             RotationChanged?.Invoke(Angle);
         }
+
+        public virtual void Dispose()
+        {
+            RotationChanged = null;
+        }
     }
 }

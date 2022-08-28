@@ -11,6 +11,4 @@ public interface IMetricView
     void OnUpdateSpeed(float speed);
     void OnUpdateLaserCount(int count);
     void OnLaserRollbackTime(TimeSpan time);
-    void OnPlayerDead(object sender);
-    void ScoreUpdate(int score);
 }

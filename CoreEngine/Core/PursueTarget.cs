@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using CoreEngine.Entities.Objects;
 using CoreEngine.Entities.Objects.ControlledObjects;
 
 namespace CoreEngine.Core;
@@ -26,18 +25,18 @@ internal class PursueTarget : IMotion, IDisposable
     private void OnPlayerDestroyed(object sender)
     {
         _playerPosition = null;
+        _target.PositionChanged -= PlayerPositionUpdate;
+        _target.Destroyed -= OnPlayerDestroyed;
     }
 
     private void PlayerPositionUpdate(Vector2 position)
     {
         _playerPosition = position;
-        Update();
     }
 
     private void AlienPositionUpdate(Vector2 position)
     {
         _alienPosition = position;
-        Update();
     }
 
     private void AlienAngleUpdate(float angle)
@@ -97,13 +96,13 @@ internal class PursueTarget : IMotion, IDisposable
         Dispose();
     }
 
-
     public void Dispose()
     {
         _target.PositionChanged -= PlayerPositionUpdate;
         _target.Destroyed -= OnPlayerDestroyed;
         _alien!.PositionChanged -= AlienPositionUpdate;
         _alien.RotationChanged -= AlienAngleUpdate;
+        _alien.Destroyed -= OnAlienDestroyed;
         Move = null;
         Rotate = null;
     }

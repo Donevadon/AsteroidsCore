@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace CoreEngine.Entities
 {
-    public interface IMovement
+    public interface IMovement : IDisposable
     {
         Vector2 Position { get; }
         Vector2 Direction { get; }

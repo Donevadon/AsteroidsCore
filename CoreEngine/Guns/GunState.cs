@@ -5,16 +5,19 @@ using CoreEngine.Core.Models;
 
 namespace CoreEngine.Guns;
 
-public abstract class GunState
+public abstract class GunState : IDisposable
 {
     protected virtual DateTime ReloadTime { get; } = DateTime.Now;
+    public abstract int Count { get; }
+
+    public event Action<TimeSpan>? TimeUpdated;
+    public event Action<int>? Reloaded;
+
 
     public virtual GunState Fire(AmmunitionModel model)
     {
         var state = CreateDischargeState(model);
         Reloaded?.Invoke(state.Count);
-        TimeUpdated = null;
-        Reloaded = null;
         return state;
     }
 
@@ -22,10 +25,7 @@ public abstract class GunState
     {
         return Timer(TimeSpan.FromSeconds(time));
     }
-
-    public event Action<TimeSpan>? TimeUpdated;
-    public event Action<int>? Reloaded;
-
+    
     private GunState Timer(TimeSpan time)
     {
         var state = this;
@@ -59,6 +59,10 @@ public abstract class GunState
     {
         return this;
     }
-
-    public abstract int Count { get; }
+    
+    public void Dispose()
+    {
+        TimeUpdated = null;
+        Reloaded = null;
+    }
 }

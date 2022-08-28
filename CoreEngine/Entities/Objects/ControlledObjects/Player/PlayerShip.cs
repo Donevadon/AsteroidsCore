@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using CoreEngine.Behaviors.ControlledBehaviors;
 using CoreEngine.Core;
 using CoreEngine.Core.Models;
@@ -11,27 +10,38 @@ public class PlayerShip : GameObject, IPursuedTarget
 {
     private int _score;
     private readonly IMetricView _metric;
+    private readonly IGameResultView _gameResultView;
     private readonly MovingBehavior _moving;
     private readonly ShootingBehavior _shootingBehavior;
     
-    public PlayerShip(IMotion motion, IShoot shoot, IMetricView metric, PlayerModel model)
+    public PlayerShip(IMotion motion, IShoot shoot, IMetricView metric, IGameResultView gameResultView, PlayerModel model)
         : base(new MovementByDynamicAcceleration(model.MoveOptions.Position, model.MoveOptions.Angle,
                 model.MoveOptions.Speed, model.MoveOptions.ScreenSize, model.Breaking),
             new RotationByDynamicAcceleration(model.MoveOptions.Angle, model.RotateSpeed), model.Size)
     {
         _metric = metric;
+        _gameResultView = gameResultView;
         _moving = new MovingBehavior(motion,
             Movement as IAccelerationMovement ?? throw new InvalidOperationException(),
             Rotation as IAccelerationRotate ?? throw new InvalidOperationException(), model.MoveRate);
         var gun = new Gun(model.Factory, model.GunOptions, model.MoveOptions.ScreenSize);
         _shootingBehavior = new ShootingBehavior(shoot, gun, Movement, Rotation);
-
+        
+        ResetMetrics();
         SubscribeMetric();
     }
-    
+
+    private void ResetMetrics()
+    {
+        _gameResultView.ScoreUpdate(_score);
+        _metric.OnUpdateAngle(Rotation.Angle);
+        _metric.OnUpdatePosition(Movement.Position);
+        _metric.OnUpdateLaserCount(0);
+    }
+
     private void GunOnScoreAdded()
     {
-        _metric.ScoreUpdate(++_score);
+        _gameResultView.ScoreUpdate(++_score);
     }
 
     public override bool IsCollision(ICollisionObject obj)
@@ -59,7 +69,7 @@ public class PlayerShip : GameObject, IPursuedTarget
         
     private void SubscribeMetric()
     {
-        Destroyed += _metric.OnPlayerDead;
+        Destroyed += _gameResultView.OnPlayerDead;
         Rotation.RotationChanged += _metric.OnUpdateAngle;
         Movement.PositionChanged += _metric.OnUpdatePosition;
         _moving.SpeedChanged += _metric.OnUpdateSpeed;
@@ -70,7 +80,7 @@ public class PlayerShip : GameObject, IPursuedTarget
 
     private void UnsubscribeMetric()
     {
-        Destroyed -= _metric.OnPlayerDead;
+        Destroyed -= _gameResultView.OnPlayerDead;
         Rotation.RotationChanged -= _metric.OnUpdateAngle;
         Movement.PositionChanged -= _metric.OnUpdatePosition;
         _moving.SpeedChanged -= _metric.OnUpdateSpeed;

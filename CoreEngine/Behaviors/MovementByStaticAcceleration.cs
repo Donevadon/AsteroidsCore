@@ -50,5 +50,10 @@ namespace CoreEngine.Behaviors
 
         private static float PositionRelativeToTheScreen(float positionSide, float screenSide) => 
             positionSide > screenSide || positionSide < -screenSide ? positionSide * -1 : positionSide;
+
+        public virtual void Dispose()
+        {
+            PositionChanged = null;
+        }
     }
 }
