@@ -2,7 +2,7 @@
 
 namespace CoreEngine.Behaviors.ControlledBehaviors
 {
-    public class RotationWithAcceleration : Rotation, IAccelerationRotate
+    public class RotationByDynamicAcceleration : RotationByStaticAcceleration, IAccelerationRotate
     {
         protected override float Acceleration { get; set; }
 
@@ -20,7 +20,7 @@ namespace CoreEngine.Behaviors.ControlledBehaviors
             }
         }
         
-        public RotationWithAcceleration(float startAngle, float speed) : base(startAngle, Vector3.UnitZ, speed)
+        public RotationByDynamicAcceleration(float startAngle, float speed) : base(startAngle, Vector3.UnitZ, speed, 0)
         {
         }
     }

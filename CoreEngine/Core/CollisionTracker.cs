@@ -5,20 +5,23 @@ namespace CoreEngine.Core
 {
     public class CollisionTracker
     {
-        private readonly List<IObject> _objects = new();
+        private readonly List<ICollisionObject> _objects = new();
 
-        public void Add(IObject obj)
+        public void Add(object obj)
         {
-            obj.Updated += GameObjectOnUpdated;
-            obj.Destroyed += sender =>
-            {
-                _objects.Remove(sender);
-                obj.Updated -= GameObjectOnUpdated;
-            };
-            _objects.Add(obj);
+            if (obj is not ICollisionObject collisionObject) return;
+            collisionObject.Updated += GameObjectOnUpdated;
+            _objects.Add(collisionObject);
+        }
+
+        public void Remove(object obj)
+        {
+            if (obj is not ICollisionObject collisionObject) return;
+             _objects.Remove(collisionObject);
+             collisionObject.Updated -= GameObjectOnUpdated;
         }
         
-        private void GameObjectOnUpdated(IObject sender)
+        private void GameObjectOnUpdated(ICollisionObject sender)
         {
             var collisions = _objects
                 .Where(item => !item.Equals(sender)

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoreEngine.Entities.Objects
+namespace CoreEngine.Entities.Objects.ControlledObjects
 {
     public interface IMotion
     {

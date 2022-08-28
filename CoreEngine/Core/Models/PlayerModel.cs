@@ -12,5 +12,6 @@ namespace CoreEngine.Core.Models
         public GunOptions GunOptions { get; set; }
         public Vector2 Size { get; set; }
         public float Breaking { get; set; }
+        public float MoveRate { get; set; }
     };
 }

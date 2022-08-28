@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using CoreEngine.Core;
 using CoreEngine.Core.Configurations;
+using CoreEngine.Core.Models;
 
 namespace CoreEngine.Guns.MultiShot;
 
@@ -21,9 +22,9 @@ public class ChargedGun : MultiGunState
         return new ChargedGun(_factory, this);
     }
 
-    protected override GunState CreateDischargeState(MoveOptions moveOptions, Vector2 vector2, Action onScoreAdded)
+    protected override GunState CreateDischargeState(AmmunitionModel model)
     {
-        _factory.GetLaser(moveOptions, vector2, onScoreAdded);
+        _factory.GetLaser(model);
         _previous.SetReloadTime(ReloadTime);
         return _previous;
     }

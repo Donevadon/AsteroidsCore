@@ -1,31 +1,32 @@
 ﻿using System;
 using System.Numerics;
-using System.Threading.Tasks;
 using CoreEngine.Behaviors;
 using CoreEngine.Core;
-using CoreEngine.Core.Configurations;
-using CoreEngine.Entities.Objects.ControlledObjects;
+using CoreEngine.Core.Models;
 using CoreEngine.Entities.Objects.ControlledObjects.Player;
 
 namespace CoreEngine.Entities.Objects
 {
     public sealed class Bullet : GameObject
     {
-        private DateTime _lifeTime = DateTime.Now;
+        private DateTime _countdown = DateTime.Now;
+        private readonly float _lifeTime;
         private readonly Action? _addScore; 
-        public Bullet(MoveOptions moveOptions, Vector2 size, Action? addScore) 
-            : base(new Movement(moveOptions.Position, moveOptions.Angle, moveOptions.Speed, moveOptions.ScreenSize), new DoNotRotation(), size)
+        public Bullet(AmmunitionModel model) 
+            : base(new MovementByStaticAcceleration(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, 1, model.MoveOptions.ScreenSize),
+                new RotationByStaticAcceleration(model.MoveOptions.Angle, Vector3.UnitZ, 0, 0), model.Size)
         {
-            _addScore = addScore;
+            _addScore = model.AddScore;
+            _lifeTime = model.LifeTime;
         }
 
-        public override void OnCollision(IObject sender)
+        public override void OnCollision(ICollisionObject sender)
         {
             _addScore?.Invoke();
             Destroy();
         }
 
-        public override bool IsCollision(IObject obj)
+        public override bool IsCollision(ICollisionObject obj)
         {
             return obj is not PlayerShip
                    && obj is not Bullet
@@ -45,7 +46,7 @@ namespace CoreEngine.Entities.Objects
         {
             Movement.Move(deltaTime);
             
-            Timer(ref _lifeTime, TimeSpan.FromSeconds(3), Destroy);
+            Timer(ref _countdown, TimeSpan.FromSeconds(_lifeTime), Destroy);
             
             base.Update(deltaTime);
         }

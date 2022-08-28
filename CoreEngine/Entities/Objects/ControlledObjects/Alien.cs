@@ -5,19 +5,19 @@ using CoreEngine.Core.Models;
 
 namespace CoreEngine.Entities.Objects.ControlledObjects;
 
-public class Alien : GameObject
+public class Alien : GameObject, IPursuer
 {
     private readonly MovingBehavior _movingBehavior;
     public Alien(AlienModel model)
-        : base(new MovementWithAcceleration(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, model.MoveOptions.ScreenSize, 0),
-            new RotationWithAcceleration(model.MoveOptions.Angle, model.RotateSpeed), model.Size)
+        : base(new MovementByDynamicAcceleration(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, model.MoveOptions.ScreenSize, 0),
+            new RotationByDynamicAcceleration(model.MoveOptions.Angle, model.RotateSpeed), model.Size)
     {
         _movingBehavior = new MovingBehavior(model.Controller,
             Movement as IAccelerationMovement ?? throw new InvalidOperationException(),
-            Rotation as IAccelerationRotate ?? throw new InvalidOperationException(), 0.002f);
+            Rotation as IAccelerationRotate ?? throw new InvalidOperationException(), model.MoveRate);
     }
 
-    public override bool IsCollision(IObject obj)
+    public override bool IsCollision(ICollisionObject obj)
     {
         return obj is not Asteroid
                && obj is not SmallAsteroid

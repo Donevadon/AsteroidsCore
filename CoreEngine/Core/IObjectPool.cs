@@ -1,4 +1,4 @@
-using System.Numerics;
+using System;
 using CoreEngine.Core.Models;
 
 namespace CoreEngine.Core
@@ -8,5 +8,6 @@ namespace CoreEngine.Core
         IObject GetPlayer(PlayerModel model);
         IObject GetAsteroid(AsteroidModel model);
         IObject GetAlien(AlienModel model);
+        event Action<IObject> ObjectCreated;
     }
 }

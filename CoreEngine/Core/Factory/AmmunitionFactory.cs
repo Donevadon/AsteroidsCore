@@ -1,31 +1,32 @@
 ﻿using System;
 using System.Numerics;
 using CoreEngine.Core.Configurations;
+using CoreEngine.Core.Models;
 
 namespace CoreEngine.Core.Factory
 {
-    public abstract class AmmunitionFactory : Factory, IAmmunitionFactory
+    public abstract class AmmunitionFactory : IAmmunitionFactory
     {
-        protected AmmunitionFactory(CoreEngine engine) : base(engine)
+        public event Action<IObject>? ObjectCreated;
+        
+        public IObject GetAmmo(AmmunitionModel model)
         {
-        }
-
-        public IObject GetAmmo(MoveOptions moveOptions, Vector2 size, Action? addScore)
-        {
-            var bullet = CreateAmmo(moveOptions, size, addScore);
-            InitInEngine(bullet);
+            var bullet = CreateAmmo(model);
+            ObjectCreated?.Invoke(bullet);
+            
             return bullet;
         }
         
-        protected abstract IObject CreateAmmo(MoveOptions moveOptions, Vector2 size, Action? addScore);
+        protected abstract IObject CreateAmmo(AmmunitionModel model);
 
-        public IObject GetLaser(MoveOptions options, Vector2 size, Action? addScore)
+        public IObject GetLaser(AmmunitionModel model)
         {
-            var laser = CreateLaser(options, size, addScore);
-            InitInEngine(laser);
+            var laser = CreateLaser(model);
+            ObjectCreated?.Invoke(laser);
+
             return laser;
         }
-        
-        protected abstract IObject CreateLaser(MoveOptions moveOptions, Vector2 size, Action? addScore);
+
+        protected abstract IObject CreateLaser(AmmunitionModel model);
     }
 }

@@ -2,6 +2,7 @@
 using System.Numerics;
 using CoreEngine.Core;
 using CoreEngine.Core.Configurations;
+using CoreEngine.Core.Models;
 
 namespace CoreEngine.Guns.MultiShot;
 
@@ -19,7 +20,7 @@ public class DischargedGun : MultiGunState
         return new ChargedGun(_factory, this);
     }
 
-    public override GunState Fire(MoveOptions moveOptions, Vector2 vector2, Action onScoreAdded)
+    public override GunState Fire(AmmunitionModel model)
     {
         return this;
     }

@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace CoreEngine.Behaviors.ControlledBehaviors
 {
-    public class MovementWithAcceleration : Movement, IAccelerationMovement
+    public class MovementByDynamicAcceleration : MovementByStaticAcceleration, IAccelerationMovement
     {
         private readonly float _speed;
         private readonly float _breaking;
@@ -26,8 +26,8 @@ namespace CoreEngine.Behaviors.ControlledBehaviors
             }
         }
         
-        public MovementWithAcceleration(Vector2 startPosition, float direction, float speed, Vector2 screenSize, float breaking)
-            : base(startPosition, direction, speed, screenSize)
+        public MovementByDynamicAcceleration(Vector2 startPosition, float direction, float speed, Vector2 screenSize, float breaking)
+            : base(startPosition, direction, speed, 0, screenSize)
         {
             _speed = speed;
             _breaking = breaking;

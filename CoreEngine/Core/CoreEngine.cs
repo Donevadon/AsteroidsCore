@@ -1,53 +1,72 @@
 using System;
 using System.Numerics;
-using CoreEngine.Behaviors;
 using CoreEngine.Core.Configurations;
 using CoreEngine.Core.Models;
-using CoreEngine.Entities.Objects;
 
 namespace CoreEngine.Core
 {
-    public abstract class CoreEngine
+    public class CoreEngine : IDisposable
     {
-        public event Action<float>? FrameUpdated;
-        private DateTime _asteroidTime = DateTime.Now;
-        private DateTime _alienTime = DateTime.Now;
+        private readonly IObjectPool _pool;
+        private readonly IFragmentsFactory _fragments;
+        private readonly IAmmunitionFactory _ammunition;
         private readonly Options _options;
         private readonly PlayerOptions _playerOptions;
         private readonly AsteroidOptions _asteroidOptions;
         private readonly AlienOptions _alienOptions;
         private readonly Vector2 _screenSize;
-        private IObject _player;
-        private Mock _controller;
+        private readonly CollisionTracker _collision = new();
+        private DateTime _asteroidTime = DateTime.Now;
+        private DateTime _alienTime = DateTime.Now;
+        private IObject? _player;
+        
+        private event Action<float>? FrameUpdated;
+        private event Action? Disposed;
 
-        protected CoreEngine(Options options)
+        public CoreEngine(Options options, IAmmunitionFactory ammunition, IFragmentsFactory fragments, IObjectPool pool)
         {
             _options = options;
+            _ammunition = ammunition;
+            _fragments = fragments;
+            _pool = pool;
             _playerOptions = options.PlayerOptions;
             _asteroidOptions = options.AsteroidOptions;
             _alienOptions = options.AlienOptions;
             _screenSize = new Vector2(options.ScreenSize.Width, options.ScreenSize.Height);
+            
+            _pool.ObjectCreated += OnObjectCreated;
+            _fragments.ObjectCreated += OnObjectCreated;
+            _ammunition.ObjectCreated += OnObjectCreated;
         }
 
-        protected abstract IObjectPool Pool { get; }
-        protected abstract IFragmentsFactory FragmentsFactory { get; }
-        protected abstract IAmmunitionFactory AmmunitionFactory { get; }
+        private void OnObjectCreated(IObject obj)
+        {
+            FrameUpdated += obj.Update;
+            Disposed += obj.Dispose;
+            _collision.Add(obj);
+            obj.Destroyed += ObjectOnDestroyed;
+        }
+
+        private void ObjectOnDestroyed(object obj)
+        {
+            if (obj is not IObject gameObj) return;
+            FrameUpdated -= gameObj.Update;
+            _collision.Remove(obj);
+        }
 
         public void Start()
         {
-            CreatePlayer();
-            SpawnAlien();
+            _player = CreatePlayer();
         }
 
         public void UpdateFrame(float deltaTime)
         {
             FrameUpdated?.Invoke(deltaTime);
-            //Timer(ref _asteroidTime, TimeSpan.FromSeconds(3), SpawnAsteroid);
-            //Timer(ref _alienTime, TimeSpan.FromSeconds(3), SpawnAlien);
-            _controller?.Update();
+            Timer(ref _asteroidTime, TimeSpan.FromSeconds(_options.AsteroidSpawnTime), SpawnAsteroid);
+            Timer(ref _alienTime, TimeSpan.FromSeconds(_options.AlienSpawnTime), SpawnAlien);
         }
 
-        private void CreatePlayer()
+        private IObject CreatePlayer()
         {
             var moveOptions = new MoveOptions(new Vector2(_playerOptions.StartPositionX, _playerOptions.StartPositionY),
                 _playerOptions.MoveSpeed,
@@ -55,14 +74,15 @@ namespace CoreEngine.Core
             var size = _playerOptions.Size;
             var model = new PlayerModel()
             {
-                Factory = AmmunitionFactory,
+                Factory = _ammunition,
                 MoveOptions = moveOptions,
                 RotateSpeed = _playerOptions.RotateSpeed,
                 GunOptions = _playerOptions.GunOptions,
                 Size = new Vector2(size.X, size.Y),
-                Breaking = _playerOptions.Breaking
+                Breaking = _playerOptions.Breaking,
+                MoveRate = _playerOptions.MoveRate
             };
-            _player = Pool.GetPlayer(model);
+            return _pool.GetPlayer(model);
         }
 
         private void SpawnAsteroid()
@@ -73,14 +93,14 @@ namespace CoreEngine.Core
             var size = _asteroidOptions.Size;
             var model = new AsteroidModel()
             {
-                Factory = FragmentsFactory,
+                Factory = _fragments,
                 FragmentCount = _asteroidOptions.FragmentCount,
                 FragmentOptions = _asteroidOptions.FragmentAsteroidOptions,
                 MoveOptions = options,
                 RotateSpeed = _asteroidOptions.RotateSpeed,
                 Size = new Vector2(size.X, size.Y)
             };
-            _ = Pool.GetAsteroid(model);
+            _ = _pool.GetAsteroid(model);
         }
 
         private static void Timer(ref DateTime lastTime, TimeSpan time, Action action)
@@ -94,67 +114,28 @@ namespace CoreEngine.Core
         private void SpawnAlien()
         {
             var random = new Random();
-            var options = new MoveOptions(/*new Vector2(_screenSize.X, -_screenSize.Y)*/Vector2.One, _alienOptions.MoveSpeed,
+            var options = new MoveOptions(new Vector2(_screenSize.X, -_screenSize.Y), _alienOptions.MoveSpeed,
                 random.Next(0, 360), _screenSize);
-            _controller = new Mock(_player);
+            var controller = new PursueTarget(_player as IPursuedTarget ?? throw new ArgumentException());
             var size = _alienOptions.Size;
             var model = new AlienModel()
             {
-                Controller = _controller,
+                Controller = controller,
                 MoveOptions = options,
                 RotateSpeed = _alienOptions.RotateSpeed,
                 Size = new Vector2(size.X, size.Y),
+                MoveRate = _alienOptions.MoveRate
             };
-            var alien = Pool.GetAlien(model);
-
-            _controller._alien = alien;
-        }
-    }
-
-    internal class Mock : IMotion
-    {
-        private readonly IObject _player;
-        public IObject? _alien;
-
-        public Mock(IObject player)
-        {
-            _player = player;
+            var alien = _pool.GetAlien(model);
+            controller.SetPursuer(alien as IPursuer ?? throw new ArgumentException());
         }
 
-        public event Action? Move;
-        public event Action<float>? Rotate;
-
-        public void Update()
+        public void Dispose()
         {
-            var expectRotate = RotateForTarget(_player.Position, _alien.Position);
-
-            if (_alien.Angle > 350 && expectRotate < 10)
-            {
-                Rotate?.Invoke(1);
-            }else if (expectRotate > 350 && _alien.Angle < 10)
-            {
-                Rotate?.Invoke(-1);
-            }
-            else if(expectRotate < _alien.Angle)
-            {
-                Rotate?.Invoke(-1);
-            }
-            else
-            {
-                Rotate?.Invoke(1);
-            }
-            
-            Move?.Invoke();
-        }
-
-        private static float RotateForTarget(Vector2 target, Vector2 position)
-        {
-            var vector = target - position;
-            var rotationZ = (float) (Math.Atan2(vector.X, vector.Y) * (360 / (Math.PI * 2)));
-            var angle = -rotationZ + 90;
-            if (angle > 360) angle -= 360;
-            if (angle < 0) angle += 360;
-            return angle;
+            _pool.ObjectCreated -= OnObjectCreated;
+            _fragments.ObjectCreated -= OnObjectCreated;
+            _ammunition.ObjectCreated -= OnObjectCreated;
+            Disposed?.Invoke();
         }
     }
 }

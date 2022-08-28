@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using CoreEngine.Core.Configurations;
+using CoreEngine.Core.Models;
 
 namespace CoreEngine.Guns;
 
@@ -8,9 +9,9 @@ public abstract class GunState
 {
     protected virtual DateTime ReloadTime { get; } = DateTime.Now;
 
-    public virtual GunState Fire(MoveOptions moveOptions, Vector2 vector2, Action onScoreAdded)
+    public virtual GunState Fire(AmmunitionModel model)
     {
-        var state = CreateDischargeState(moveOptions, vector2, onScoreAdded);
+        var state = CreateDischargeState(model);
         Reloaded?.Invoke(state.Count);
         TimeUpdated = null;
         Reloaded = null;
@@ -54,7 +55,7 @@ public abstract class GunState
         return this;
     }
 
-    protected virtual GunState CreateDischargeState(MoveOptions moveOptions, Vector2 vector2, Action onScoreAdded)
+    protected virtual GunState CreateDischargeState(AmmunitionModel model)
     {
         return this;
     }

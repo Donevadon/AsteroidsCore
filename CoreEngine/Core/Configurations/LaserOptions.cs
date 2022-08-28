@@ -10,5 +10,6 @@ namespace CoreEngine.Core.Configurations
     {
         public Vector2Option Size;
         public float ReloadTime;
+        public float LifeTime;
     }
 }

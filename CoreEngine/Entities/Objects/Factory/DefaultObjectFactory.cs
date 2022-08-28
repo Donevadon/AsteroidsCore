@@ -14,7 +14,7 @@ namespace CoreEngine.Entities.Objects.Factory
         private readonly IMetricView _metric;
 
 
-        public DefaultObjectFactory(Core.CoreEngine engine, IMotion motionController, IShoot shootController, IMetricView metric) : base(engine)
+        public DefaultObjectFactory(IMotion motionController, IShoot shootController, IMetricView metric)
         {
             _motionController = motionController;
             _shootController = shootController;

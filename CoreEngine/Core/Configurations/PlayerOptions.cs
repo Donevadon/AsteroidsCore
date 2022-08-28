@@ -16,4 +16,5 @@ public record PlayerOptions
     public GunOptions GunOptions;
     public Vector2Option Size;   
     public float Breaking;
+    public float MoveRate;
 }

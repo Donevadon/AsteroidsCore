@@ -1,42 +1,41 @@
+using System;
 using CoreEngine.Core.Models;
 
 namespace CoreEngine.Core.Factory
 {
-    public abstract class ObjectFactory : Factory, IObjectPool
+    public abstract class ObjectFactory : IObjectPool
     {
-        protected ObjectFactory(CoreEngine engine) : base(engine)
-        {
-        }
-        
-        public IObject? GetPlayer(PlayerModel model)
+        public event Action<IObject>? ObjectCreated;
+
+        public IObject GetPlayer(PlayerModel model)
         {
             var ship = CreatePlayer(model);
-            InitInEngine(ship);
+            ObjectCreated?.Invoke(ship);
 
             return ship;
         }
 
-        protected abstract IObject? CreatePlayer(PlayerModel model);
+        protected abstract IObject CreatePlayer(PlayerModel model);
         
 
-        public IObject? GetAsteroid(AsteroidModel model)
+        public IObject GetAsteroid(AsteroidModel model)
         {
             var asteroid = CreateAsteroid(model);
-            InitInEngine(asteroid);
+            ObjectCreated?.Invoke(asteroid);
 
             return asteroid;
         }
+        
+        protected abstract IObject CreateAsteroid(AsteroidModel model);
 
-        public IObject? GetAlien(AlienModel model)
+        public IObject GetAlien(AlienModel model)
         {
             var alien = CreateAlien(model);
-            InitInEngine(alien);
+            ObjectCreated?.Invoke(alien);
 
             return alien;
         }
 
         protected abstract IObject CreateAlien(AlienModel model);
-
-        protected abstract IObject CreateAsteroid(AsteroidModel model);
     }
 }

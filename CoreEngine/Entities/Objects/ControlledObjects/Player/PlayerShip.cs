@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using CoreEngine.Behaviors.ControlledBehaviors;
 using CoreEngine.Core;
 using CoreEngine.Core.Models;
@@ -6,34 +7,34 @@ using CoreEngine.Guns;
 
 namespace CoreEngine.Entities.Objects.ControlledObjects.Player;
 
-public class PlayerShip : GameObject
+public class PlayerShip : GameObject, IPursuedTarget
 {
     private int _score;
     private readonly IMetricView _metric;
     private readonly MovingBehavior _moving;
     private readonly ShootingBehavior _shootingBehavior;
-
+    
     public PlayerShip(IMotion motion, IShoot shoot, IMetricView metric, PlayerModel model)
-        : base(new MovementWithAcceleration(model.MoveOptions.Position, model.MoveOptions.Angle,
+        : base(new MovementByDynamicAcceleration(model.MoveOptions.Position, model.MoveOptions.Angle,
                 model.MoveOptions.Speed, model.MoveOptions.ScreenSize, model.Breaking),
-            new RotationWithAcceleration(model.MoveOptions.Angle, model.RotateSpeed), model.Size)
+            new RotationByDynamicAcceleration(model.MoveOptions.Angle, model.RotateSpeed), model.Size)
     {
         _metric = metric;
         _moving = new MovingBehavior(motion,
             Movement as IAccelerationMovement ?? throw new InvalidOperationException(),
-            Rotation as IAccelerationRotate ?? throw new InvalidOperationException(), 0.02f);
+            Rotation as IAccelerationRotate ?? throw new InvalidOperationException(), model.MoveRate);
         var gun = new Gun(model.Factory, model.GunOptions, model.MoveOptions.ScreenSize);
         _shootingBehavior = new ShootingBehavior(shoot, gun, Movement, Rotation);
 
         SubscribeMetric();
     }
-        
+    
     private void GunOnScoreAdded()
     {
         _metric.ScoreUpdate(++_score);
     }
 
-    public override bool IsCollision(IObject obj)
+    public override bool IsCollision(ICollisionObject obj)
     {
         return obj is not Bullet
                && obj is not Laser

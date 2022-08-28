@@ -3,7 +3,7 @@ using System.Numerics;
 using CoreEngine.Behaviors.ControlledBehaviors;
 using CoreEngine.Core;
 using CoreEngine.Core.Configurations;
-using CoreEngine.Entities.Objects;
+using CoreEngine.Core.Models;
 using CoreEngine.Guns.MultiShot;
 using ChargedGun = CoreEngine.Guns.SingleShot.ChargedGun;
 
@@ -29,7 +29,7 @@ namespace CoreEngine.Guns
             remove => _laserGun.Reloaded -= value;
         }
 
-        public event Action ScoreAdded;
+        public event Action? ScoreAdded;
 
 
         public Gun(IAmmunitionFactory modelFactory, GunOptions options, Vector2 screenSize)
@@ -45,7 +45,14 @@ namespace CoreEngine.Guns
         public void Fire(Vector2 position, float angle)
         {
             var size = _bulletOptions.Size;
-            _bulletGun = _bulletGun.Fire(new MoveOptions(position, _bulletOptions.Speed, angle, _screenSize), new Vector2(size.X, size.Y), ScoreAdded);
+            var model = new AmmunitionModel()
+            {
+                Size = new Vector2(size.X, size.Y),
+                AddScore = ScoreAdded,
+                MoveOptions = new MoveOptions(position, _bulletOptions.Speed, angle, _screenSize),
+                LifeTime = _bulletOptions.LifeTime
+            };
+            _bulletGun = _bulletGun.Fire(model);
         }
 
         public void Reload()
@@ -57,8 +64,14 @@ namespace CoreEngine.Guns
         public void LaunchLaser(Vector2 movementPosition, float rotationAngle)
         {
             var size = _laserOptions.Size;
-            _laserGun = _laserGun.Fire(new MoveOptions(movementPosition, 0, rotationAngle, _screenSize),
-                new Vector2(size.X, size.Y), ScoreAdded);
+            var model = new AmmunitionModel()
+            {
+                Size = new Vector2(size.X, size.Y),
+                AddScore = ScoreAdded,
+                MoveOptions = new MoveOptions(movementPosition, 0, rotationAngle, _screenSize),
+                LifeTime = _laserOptions.LifeTime
+            };
+            _laserGun = _laserGun.Fire(model);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using CoreEngine.Entities.Objects;
+using CoreEngine.Entities.Objects.ControlledObjects;
 
 namespace CoreEngine.Behaviors.ControlledBehaviors
 {

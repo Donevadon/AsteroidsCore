@@ -2,6 +2,7 @@
 using System.Numerics;
 using CoreEngine.Core;
 using CoreEngine.Core.Configurations;
+using CoreEngine.Core.Models;
 
 namespace CoreEngine.Guns.SingleShot;
 
@@ -22,9 +23,9 @@ public class ChargedGun : GunState
         return this;
     }
 
-    protected override GunState CreateDischargeState(MoveOptions moveOptions, Vector2 vector2, Action onScoreAdded)
+    protected override GunState CreateDischargeState(AmmunitionModel model)
     {
-        _factory.GetAmmo(moveOptions, vector2, onScoreAdded);
+        _factory.GetAmmo(model);
         DischargedState.ResetTime();
         return DischargedState;
     }

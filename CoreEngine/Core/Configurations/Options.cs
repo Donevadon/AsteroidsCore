@@ -13,5 +13,7 @@ namespace CoreEngine.Core.Configurations
         public PlayerOptions PlayerOptions;
         public AsteroidOptions AsteroidOptions;
         public AlienOptions AlienOptions;
+        public double AsteroidSpawnTime;
+        public double AlienSpawnTime;
     }
 }

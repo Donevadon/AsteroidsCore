@@ -17,8 +17,8 @@ namespace CoreEngine.Entities.Objects
         private readonly float _speed;
 
         public Asteroid(AsteroidModel model)
-            : base(new Movement(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, model.MoveOptions.ScreenSize),
-                new Rotation(model.MoveOptions.Angle, Vector3.UnitZ, model.RotateSpeed), model.Size)
+            : base(new MovementByStaticAcceleration(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, 1, model.MoveOptions.ScreenSize),
+                new RotationByStaticAcceleration(model.MoveOptions.Angle, Vector3.UnitZ, model.RotateSpeed, 1), model.Size)
         {
             _factory = model.Factory;
             _fragmentCount = model.FragmentCount;
@@ -27,7 +27,7 @@ namespace CoreEngine.Entities.Objects
             _speed = model.MoveOptions.Speed;
         }
         
-        public override bool IsCollision(IObject obj)
+        public override bool IsCollision(ICollisionObject obj)
         {
             return obj is not SmallAsteroid 
                    && obj is not Alien 
@@ -54,6 +54,11 @@ namespace CoreEngine.Entities.Objects
                 
                 _factory.GetSmallAsteroid(model);
             }
+        }
+
+        public override void Dispose()
+        {
+            base.Destroy();
         }
     }
 }

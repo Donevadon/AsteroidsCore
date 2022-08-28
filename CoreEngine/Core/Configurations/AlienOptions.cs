@@ -11,5 +11,6 @@ namespace CoreEngine.Core.Configurations
         public float MoveSpeed;
         public float RotateSpeed;
         public Vector2Option Size;
+        public float MoveRate;
     }
 }

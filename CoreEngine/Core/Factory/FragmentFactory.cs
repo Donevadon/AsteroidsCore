@@ -1,20 +1,19 @@
-﻿using CoreEngine.Core.Models;
+﻿using System;
+using CoreEngine.Core.Models;
 
 namespace CoreEngine.Core.Factory
 {
-    public abstract class FragmentFactory : Factory, IFragmentsFactory
+    public abstract class FragmentFactory : IFragmentsFactory
     {
-        protected FragmentFactory(CoreEngine engine) : base(engine)
-        {
-        }
-        
+        public event Action<IObject>? ObjectCreated;
+
         public IObject GetSmallAsteroid(FragmentAsteroidModel model)
         {
             var asteroid = CreateSmallAsteroid(model);
-            InitInEngine(asteroid);
+            ObjectCreated?.Invoke(asteroid);
             return asteroid;
         }
-
+        
         protected abstract IObject CreateSmallAsteroid(FragmentAsteroidModel model);
     }
 }

@@ -4,12 +4,13 @@ using CoreEngine.Entities;
 
 namespace CoreEngine.Behaviors
 {
-    public class Rotation : IRotate
+    public class RotationByStaticAcceleration : IRotate
     {
         private readonly Vector3 _direction;
         private readonly float _speed;
+        private float _acceleration;
         private float _angle;
-        
+
         public event Action<float>? RotationChanged;
         
         public float Angle
@@ -26,13 +27,18 @@ namespace CoreEngine.Behaviors
             } 
         }
 
-        protected virtual float Acceleration { get; set; } = 1f;
+        protected virtual float Acceleration
+        {
+            get => _acceleration;
+            set => _acceleration = value;
+        }
 
-        public Rotation(float startAngle, Vector3 direction, float speed)
+        public RotationByStaticAcceleration(float startAngle, Vector3 direction, float speed, float acceleration)
         {
             Angle = startAngle;
             _direction = direction;
             _speed = speed;
+            _acceleration = acceleration;
         }
         
         public virtual void Rotate(float deltaTime)
