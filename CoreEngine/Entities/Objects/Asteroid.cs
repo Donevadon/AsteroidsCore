@@ -4,6 +4,7 @@ using CoreEngine.Behaviors;
 using CoreEngine.Core;
 using CoreEngine.Core.Configurations;
 using CoreEngine.Core.Models;
+using CoreEngine.Entities.Objects.ControlledObjects;
 
 namespace CoreEngine.Entities.Objects
 {
@@ -26,24 +27,12 @@ namespace CoreEngine.Entities.Objects
             _speed = model.MoveOptions.Speed;
         }
         
-        public override void OnCollision(IObject sender)
-        {
-            Destroy();
-        }
-
-        public override bool IsCollision(IObject? obj)
+        public override bool IsCollision(IObject obj)
         {
             return obj is not SmallAsteroid 
                    && obj is not Alien 
                    && obj is not Asteroid 
                    && base.IsCollision(obj);
-        }
-
-        public override void Update(float deltaTime)
-        {
-            Movement.Move(deltaTime);
-            Rotation.Rotate(deltaTime);
-            base.Update(deltaTime);
         }
 
         protected override void Destroy()

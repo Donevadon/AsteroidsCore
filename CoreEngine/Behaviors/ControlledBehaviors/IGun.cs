@@ -1,7 +1,7 @@
 using System;
 using System.Numerics;
 
-namespace CoreEngine.Entities.Objects
+namespace CoreEngine.Behaviors.ControlledBehaviors
 {
     internal interface IGun
     {

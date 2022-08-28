@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using CoreEngine.Behaviors;
 using CoreEngine.Core.Configurations;
 using CoreEngine.Core.Models;
 using CoreEngine.Entities.Objects;
@@ -16,8 +17,8 @@ namespace CoreEngine.Core
         private readonly AsteroidOptions _asteroidOptions;
         private readonly AlienOptions _alienOptions;
         private readonly Vector2 _screenSize;
-        private IObject? _player;
-        private Mock? _controller;
+        private IObject _player;
+        private Mock _controller;
 
         protected CoreEngine(Options options)
         {
@@ -35,13 +36,14 @@ namespace CoreEngine.Core
         public void Start()
         {
             CreatePlayer();
+            SpawnAlien();
         }
 
         public void UpdateFrame(float deltaTime)
         {
             FrameUpdated?.Invoke(deltaTime);
-            Timer(ref _asteroidTime, TimeSpan.FromSeconds(3), SpawnAsteroid);
-            Timer(ref _alienTime, TimeSpan.FromMinutes(1), SpawnAliens);
+            //Timer(ref _asteroidTime, TimeSpan.FromSeconds(3), SpawnAsteroid);
+            //Timer(ref _alienTime, TimeSpan.FromSeconds(3), SpawnAlien);
             _controller?.Update();
         }
 
@@ -84,17 +86,15 @@ namespace CoreEngine.Core
         private static void Timer(ref DateTime lastTime, TimeSpan time, Action action)
         {
             var delta = DateTime.Now - lastTime;
-            if (delta > time)
-            {
-                action();
-                lastTime = DateTime.Now;
-            }
+            if (delta <= time) return;
+            action();
+            lastTime = DateTime.Now;
         }
 
-        private void SpawnAliens()
+        private void SpawnAlien()
         {
             var random = new Random();
-            var options = new MoveOptions(new Vector2(_screenSize.X, -_screenSize.Y), _alienOptions.MoveSpeed,
+            var options = new MoveOptions(/*new Vector2(_screenSize.X, -_screenSize.Y)*/Vector2.One, _alienOptions.MoveSpeed,
                 random.Next(0, 360), _screenSize);
             _controller = new Mock(_player);
             var size = _alienOptions.Size;
@@ -111,7 +111,7 @@ namespace CoreEngine.Core
         }
     }
 
-    internal class Mock : IController
+    internal class Mock : IMotion
     {
         private readonly IObject _player;
         public IObject? _alien;
@@ -123,14 +123,19 @@ namespace CoreEngine.Core
 
         public event Action? Move;
         public event Action<float>? Rotate;
-        public event Action? Fire;
-        public event Action? LaunchLaser;
 
         public void Update()
         {
             var expectRotate = RotateForTarget(_player.Position, _alien.Position);
 
-            if (_alien.Angle > expectRotate)
+            if (_alien.Angle > 350 && expectRotate < 10)
+            {
+                Rotate?.Invoke(1);
+            }else if (expectRotate > 350 && _alien.Angle < 10)
+            {
+                Rotate?.Invoke(-1);
+            }
+            else if(expectRotate < _alien.Angle)
             {
                 Rotate?.Invoke(-1);
             }
@@ -138,13 +143,18 @@ namespace CoreEngine.Core
             {
                 Rotate?.Invoke(1);
             }
+            
+            Move?.Invoke();
         }
 
         private static float RotateForTarget(Vector2 target, Vector2 position)
         {
             var vector = target - position;
             var rotationZ = (float) (Math.Atan2(vector.X, vector.Y) * (360 / (Math.PI * 2)));
-            return -rotationZ + 90;
+            var angle = -rotationZ + 90;
+            if (angle > 360) angle -= 360;
+            if (angle < 0) angle += 360;
+            return angle;
         }
     }
 }

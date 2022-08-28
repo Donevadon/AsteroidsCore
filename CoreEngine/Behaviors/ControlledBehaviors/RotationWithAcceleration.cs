@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
-using CoreEngine.Entities.Objects;
 
-namespace CoreEngine.Behaviors
+namespace CoreEngine.Behaviors.ControlledBehaviors
 {
     public class RotationWithAcceleration : Rotation, IAccelerationRotate
     {

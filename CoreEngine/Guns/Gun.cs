@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using CoreEngine.Behaviors.ControlledBehaviors;
 using CoreEngine.Core;
 using CoreEngine.Core.Configurations;
 using CoreEngine.Entities.Objects;

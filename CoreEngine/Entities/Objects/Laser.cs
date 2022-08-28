@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Numerics;
 using CoreEngine.Core;
+using CoreEngine.Entities.Objects.ControlledObjects;
+using CoreEngine.Entities.Objects.ControlledObjects.Player;
 
 namespace CoreEngine.Entities.Objects
 {

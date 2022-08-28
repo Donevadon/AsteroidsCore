@@ -8,13 +8,13 @@ namespace CoreEngine.Core.Factory
         {
         }
         
-        public IObject? GetSmallAsteroid(FragmentAsteroidModel model)
+        public IObject GetSmallAsteroid(FragmentAsteroidModel model)
         {
             var asteroid = CreateSmallAsteroid(model);
             InitInEngine(asteroid);
             return asteroid;
         }
 
-        protected abstract IObject? CreateSmallAsteroid(FragmentAsteroidModel model);
+        protected abstract IObject CreateSmallAsteroid(FragmentAsteroidModel model);
     }
 }

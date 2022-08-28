@@ -35,8 +35,8 @@ namespace CoreEngine.Core.Factory
             return alien;
         }
 
-        protected abstract IObject? CreateAlien(AlienModel model);
+        protected abstract IObject CreateAlien(AlienModel model);
 
-        protected abstract IObject? CreateAsteroid(AsteroidModel model);
+        protected abstract IObject CreateAsteroid(AsteroidModel model);
     }
 }

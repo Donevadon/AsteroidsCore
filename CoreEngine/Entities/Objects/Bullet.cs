@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using CoreEngine.Behaviors;
 using CoreEngine.Core;
 using CoreEngine.Core.Configurations;
+using CoreEngine.Entities.Objects.ControlledObjects;
+using CoreEngine.Entities.Objects.ControlledObjects.Player;
 
 namespace CoreEngine.Entities.Objects
 {
@@ -23,7 +25,7 @@ namespace CoreEngine.Entities.Objects
             Destroy();
         }
 
-        public override bool IsCollision(IObject? obj)
+        public override bool IsCollision(IObject obj)
         {
             return obj is not PlayerShip
                    && obj is not Bullet

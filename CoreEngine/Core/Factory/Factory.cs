@@ -10,7 +10,7 @@ namespace CoreEngine.Core.Factory
             _engine = engine;
         }
 
-        protected void InitInEngine(IObject? obj)
+        protected void InitInEngine(IObject obj)
         {
             _engine.FrameUpdated += obj.Update;
             obj.Destroyed += sender => _engine.FrameUpdated -= sender.Update;

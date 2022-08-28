@@ -11,6 +11,7 @@ namespace CoreEngine.Behaviors
         private float _angle;
         
         public event Action<float>? RotationChanged;
+        
         public float Angle
         {
             get => _angle;
@@ -18,8 +19,8 @@ namespace CoreEngine.Behaviors
             {
                 _angle = value switch
                 {
-                    > 360 => 0,
-                    < 0 => 360,
+                    > 360 => value - 360,
+                    < 0 => value + 360,
                     _ => value
                 };
             } 

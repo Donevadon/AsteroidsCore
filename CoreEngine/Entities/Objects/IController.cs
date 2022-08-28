@@ -2,11 +2,9 @@
 
 namespace CoreEngine.Entities.Objects
 {
-    public interface IController
+    public interface IMotion
     {
         event Action Move;
         event Action<float> Rotate;
-        event Action Fire;
-        event Action LaunchLaser;
     }
 }

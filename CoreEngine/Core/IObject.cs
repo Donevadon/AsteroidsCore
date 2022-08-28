@@ -12,7 +12,7 @@ namespace CoreEngine.Core
         Vector2 Position { get; }
         Vector2 Size { get; }
         float Angle { get; }
-        bool IsCollision(IObject? obj);
+        bool IsCollision(IObject obj);
         void OnCollision(IObject sender);
     }
 }
