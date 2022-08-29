@@ -3,7 +3,7 @@ using CoreEngine.Core.Models;
 
 namespace CoreEngine.Core.Factory
 {
-    public abstract class ObjectFactory : IObjectPool
+    public abstract class ObjectFactory : IObjectFactory
     {
         public event Action<IObject>? ObjectCreated;
 

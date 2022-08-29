@@ -37,12 +37,12 @@ internal class PursueTarget : IMotion, IDisposable
     private void AlienPositionUpdate(Vector2 position)
     {
         _alienPosition = position;
+        Update();
     }
 
     private void AlienAngleUpdate(float angle)
     {
         _alienAngle = angle;
-        Update();
     }
 
     private void Update()

@@ -3,7 +3,7 @@ using CoreEngine.Core.Models;
 
 namespace CoreEngine.Core
 {
-    public interface IObjectPool
+    public interface IObjectFactory
     {
         IObject GetPlayer(PlayerModel model);
         IObject GetAsteroid(AsteroidModel model);

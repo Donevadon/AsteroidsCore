@@ -7,7 +7,7 @@ namespace CoreEngine.Core
 {
     public class CoreEngine : IDisposable
     {
-        private readonly IObjectPool _pool;
+        private readonly IObjectFactory _factory;
         private readonly IFragmentsFactory _fragments;
         private readonly IAmmunitionFactory _ammunition;
         private readonly Options _options;
@@ -23,18 +23,18 @@ namespace CoreEngine.Core
         private event Action<float>? FrameUpdated;
         private event Action? Disposed;
 
-        public CoreEngine(Options options, IAmmunitionFactory ammunition, IFragmentsFactory fragments, IObjectPool pool)
+        public CoreEngine(Options options, IAmmunitionFactory ammunition, IFragmentsFactory fragments, IObjectFactory factory)
         {
             _options = options;
             _ammunition = ammunition;
             _fragments = fragments;
-            _pool = pool;
+            _factory = factory;
             _playerOptions = options.PlayerOptions;
             _asteroidOptions = options.AsteroidOptions;
             _alienOptions = options.AlienOptions;
             _screenSize = new Vector2(options.ScreenSize.Width, options.ScreenSize.Height);
             
-            _pool.ObjectCreated += OnObjectCreated;
+            _factory.ObjectCreated += OnObjectCreated;
             _fragments.ObjectCreated += OnObjectCreated;
             _ammunition.ObjectCreated += OnObjectCreated;
         }
@@ -82,7 +82,7 @@ namespace CoreEngine.Core
                 Breaking = _playerOptions.Breaking,
                 MoveRate = _playerOptions.MoveRate
             };
-            return _pool.GetPlayer(model);
+            return _factory.GetPlayer(model);
         }
 
         private void SpawnAsteroid()
@@ -100,7 +100,7 @@ namespace CoreEngine.Core
                 RotateSpeed = _asteroidOptions.RotateSpeed,
                 Size = new Vector2(size.X, size.Y)
             };
-            _ = _pool.GetAsteroid(model);
+            _ = _factory.GetAsteroid(model);
         }
 
         private static void Timer(ref DateTime lastTime, TimeSpan time, Action action)
@@ -126,14 +126,14 @@ namespace CoreEngine.Core
                 Size = new Vector2(size.X, size.Y),
                 MoveRate = _alienOptions.MoveRate
             };
-            var alien = _pool.GetAlien(model);
+            var alien = _factory.GetAlien(model);
             controller.SetPursuer(alien as IPursuer ?? throw new ArgumentException());
         }
 
         public void Dispose()
         {
             Disposed?.Invoke();
-            _pool.ObjectCreated -= OnObjectCreated;
+            _factory.ObjectCreated -= OnObjectCreated;
             _fragments.ObjectCreated -= OnObjectCreated;
             _ammunition.ObjectCreated -= OnObjectCreated;
             FrameUpdated = null;
