@@ -4,7 +4,7 @@ using CoreEngine.Behaviors;
 using CoreEngine.Core;
 using CoreEngine.Core.Configurations;
 using CoreEngine.Core.Models;
-using CoreEngine.Entities.Objects.ControlledObjects;
+using CoreEngine.Entities.Objects.ControlledObjects.Enemy;
 
 namespace CoreEngine.Entities.Objects
 {

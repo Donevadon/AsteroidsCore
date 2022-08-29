@@ -3,18 +3,24 @@ using CoreEngine.Behaviors.ControlledBehaviors;
 using CoreEngine.Core;
 using CoreEngine.Core.Models;
 
-namespace CoreEngine.Entities.Objects.ControlledObjects;
+namespace CoreEngine.Entities.Objects.ControlledObjects.Enemy;
 
-public class Alien : GameObject, IPursuer
+public class Alien : GameObject, IControlledObject
 {
+    private readonly IObjectMotionController _controller;
     private readonly MovingBehavior _movingBehavior;
-    public Alien(AlienModel model)
+
+    protected Alien(AlienModel model, IObjectMotionController controller)
         : base(new MovementByDynamicAcceleration(model.MoveOptions.Position, model.MoveOptions.Angle, model.MoveOptions.Speed, model.MoveOptions.ScreenSize, 0),
             new RotationByDynamicAcceleration(model.MoveOptions.Angle, model.RotateSpeed), model.Size)
     {
-        _movingBehavior = new MovingBehavior(model.Controller,
-            Movement as IAccelerationMovement ?? throw new InvalidOperationException(),
+        _controller = controller;
+        _movingBehavior = new MovingBehavior(Movement as IAccelerationMovement ?? throw new InvalidOperationException(),
             Rotation as IAccelerationRotate ?? throw new InvalidOperationException(), model.MoveRate);
+
+        _controller.Move += _movingBehavior.Move;
+        _controller.Rotate += _movingBehavior.Rotate;
+        _controller.SetPursuer(this);
     }
 
     public override bool IsCollision(ICollisionObject obj)
@@ -30,5 +36,7 @@ public class Alien : GameObject, IPursuer
         base.Destroy();
 
         _movingBehavior.Dispose();
+        _controller.Move -= _movingBehavior.Move;
+        _controller.Rotate -= _movingBehavior.Rotate;
     }
 }

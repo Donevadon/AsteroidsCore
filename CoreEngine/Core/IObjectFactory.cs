@@ -5,7 +5,7 @@ namespace CoreEngine.Core
 {
     public interface IObjectFactory
     {
-        IObject GetPlayer(PlayerModel model);
+        IPlayer GetPlayer(PlayerModel model);
         IObject GetAsteroid(AsteroidModel model);
         IObject GetAlien(AlienModel model);
         event Action<IObject> ObjectCreated;

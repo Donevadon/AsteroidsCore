@@ -1,9 +1,9 @@
 using System;
 using System.Numerics;
 
-namespace CoreEngine.Core;
+namespace CoreEngine.Entities.Objects.ControlledObjects;
 
-internal interface IPursuer
+public interface IControlledObject
 {
     event Action<Vector2> PositionChanged;
     event Action<float> RotationChanged;

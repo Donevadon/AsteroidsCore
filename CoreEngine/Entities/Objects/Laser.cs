@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Numerics;
 using CoreEngine.Behaviors;
-using CoreEngine.Behaviors.ControlledBehaviors;
 using CoreEngine.Core;
-using CoreEngine.Core.Configurations;
 using CoreEngine.Core.Models;
-using CoreEngine.Entities.Objects.ControlledObjects;
 using CoreEngine.Entities.Objects.ControlledObjects.Player;
 
 namespace CoreEngine.Entities.Objects

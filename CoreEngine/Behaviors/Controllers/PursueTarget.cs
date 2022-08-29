@@ -1,20 +1,22 @@
 using System;
 using System.Numerics;
+using CoreEngine.Core;
 using CoreEngine.Entities.Objects.ControlledObjects;
+using CoreEngine.Entities.Objects.ControlledObjects.Enemy;
 
-namespace CoreEngine.Core;
+namespace CoreEngine.Behaviors.Controllers;
 
-internal class PursueTarget : IMotion, IDisposable
+internal class PursueTarget : IObjectMotionController, IDisposable
 {
-    private IPursuer? _alien;
-    private readonly IPursuedTarget _target;
+    private IControlledObject? _alien;
+    private readonly IObject _target;
     private Vector2? _playerPosition;
     private Vector2 _alienPosition;
     private float _alienAngle;
     public event Action? Move;
     public event Action<float>? Rotate;
 
-    public PursueTarget(IPursuedTarget target)
+    public PursueTarget(IObject target)
     {
         _target = target;
         _playerPosition = target.Position;
@@ -82,7 +84,7 @@ internal class PursueTarget : IMotion, IDisposable
         return angle;
     }
 
-    public void SetPursuer(IPursuer alien)
+    public void SetPursuer(IControlledObject alien)
     {
         _alien = alien;
         alien.PositionChanged += AlienPositionUpdate;

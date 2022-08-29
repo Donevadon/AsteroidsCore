@@ -7,7 +7,7 @@ namespace CoreEngine.Core.Factory
     {
         public event Action<IObject>? ObjectCreated;
 
-        public IObject GetPlayer(PlayerModel model)
+        public IPlayer GetPlayer(PlayerModel model)
         {
             var ship = CreatePlayer(model);
             ObjectCreated?.Invoke(ship);
@@ -15,7 +15,7 @@ namespace CoreEngine.Core.Factory
             return ship;
         }
 
-        protected abstract IObject CreatePlayer(PlayerModel model);
+        protected abstract IPlayer CreatePlayer(PlayerModel model);
         
 
         public IObject GetAsteroid(AsteroidModel model)

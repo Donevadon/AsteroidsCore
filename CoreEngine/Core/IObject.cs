@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 
 namespace CoreEngine.Core
 {
@@ -6,5 +7,7 @@ namespace CoreEngine.Core
     {
         void Update(float deltaTime);
         event Action<object> Destroyed;
+        event Action<Vector2> PositionChanged;
+        Vector2 Position { get; }
     }
 }

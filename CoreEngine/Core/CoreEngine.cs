@@ -8,6 +8,8 @@ namespace CoreEngine.Core
     public class CoreEngine : IDisposable
     {
         private readonly IObjectFactory _factory;
+        private readonly IMetricView _metric;
+        private readonly IGameResultView _gameResult;
         private readonly IFragmentsFactory _fragments;
         private readonly IAmmunitionFactory _ammunition;
         private readonly Options _options;
@@ -18,17 +20,21 @@ namespace CoreEngine.Core
         private readonly CollisionTracker _collision = new();
         private DateTime _asteroidTime = DateTime.Now;
         private DateTime _alienTime = DateTime.Now;
-        private IObject? _player;
+        private IPlayer? _player;
         
         private event Action<float>? FrameUpdated;
         private event Action? Disposed;
 
-        public CoreEngine(Options options, IAmmunitionFactory ammunition, IFragmentsFactory fragments, IObjectFactory factory)
+        public CoreEngine(Options options, IAmmunitionFactory ammunition,
+            IFragmentsFactory fragments, IObjectFactory factory,
+            IMetricView metric, IGameResultView gameResult)
         {
             _options = options;
             _ammunition = ammunition;
             _fragments = fragments;
             _factory = factory;
+            _metric = metric;
+            _gameResult = gameResult;
             _playerOptions = options.PlayerOptions;
             _asteroidOptions = options.AsteroidOptions;
             _alienOptions = options.AlienOptions;
@@ -57,6 +63,8 @@ namespace CoreEngine.Core
         public void Start()
         {
             _player = CreatePlayer();
+            _metric.Subscribe(_player);
+            _gameResult.Subscribe(_player);
         }
 
         public void UpdateFrame(float deltaTime)
@@ -66,7 +74,7 @@ namespace CoreEngine.Core
             Timer(ref _alienTime, TimeSpan.FromSeconds(_options.AlienSpawnTime), SpawnAlien);
         }
 
-        private IObject CreatePlayer()
+        private IPlayer CreatePlayer()
         {
             var moveOptions = new MoveOptions(new Vector2(_playerOptions.StartPositionX, _playerOptions.StartPositionY),
                 _playerOptions.MoveSpeed,
@@ -80,7 +88,7 @@ namespace CoreEngine.Core
                 GunOptions = _playerOptions.GunOptions,
                 Size = new Vector2(size.X, size.Y),
                 Breaking = _playerOptions.Breaking,
-                MoveRate = _playerOptions.MoveRate
+                MoveRate = _playerOptions.MoveRate,
             };
             return _factory.GetPlayer(model);
         }
@@ -116,18 +124,16 @@ namespace CoreEngine.Core
             var random = new Random();
             var options = new MoveOptions(new Vector2(_screenSize.X, -_screenSize.Y), _alienOptions.MoveSpeed,
                 random.Next(0, 360), _screenSize);
-            var controller = new PursueTarget(_player as IPursuedTarget ?? throw new ArgumentException());
             var size = _alienOptions.Size;
             var model = new AlienModel()
             {
-                Controller = controller,
+                Target = _player ?? throw new ArgumentException(),
                 MoveOptions = options,
                 RotateSpeed = _alienOptions.RotateSpeed,
                 Size = new Vector2(size.X, size.Y),
                 MoveRate = _alienOptions.MoveRate
             };
-            var alien = _factory.GetAlien(model);
-            controller.SetPursuer(alien as IPursuer ?? throw new ArgumentException());
+            _ = _factory.GetAlien(model);
         }
 
         public void Dispose()

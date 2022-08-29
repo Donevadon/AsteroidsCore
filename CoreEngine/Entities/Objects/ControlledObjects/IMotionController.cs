@@ -2,7 +2,7 @@
 
 namespace CoreEngine.Entities.Objects.ControlledObjects
 {
-    public interface IMotion
+    public interface IMotionController
     {
         event Action Move;
         event Action<float> Rotate;

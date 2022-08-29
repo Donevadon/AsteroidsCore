@@ -1,25 +1,21 @@
 using System;
+using CoreEngine.Core;
 using CoreEngine.Entities;
 
 namespace CoreEngine.Behaviors.ControlledBehaviors;
 
 internal class ShootingBehavior : IDisposable
 {
-    private readonly IShoot _controller;
     private readonly IGun _gun;
     private readonly IMovement _movement;
     private readonly IRotate _rotation;
 
 
-    public ShootingBehavior(IShoot controller, IGun gun, IMovement movement, IRotate rotation)
+    public ShootingBehavior(IGun gun, IMovement movement, IRotate rotation)
     {
-        _controller = controller;
         _gun = gun;
         _movement = movement;
         _rotation = rotation;
-            
-        _controller.Fire += ControllerOnFire;
-        _controller.LaunchLaser += ControllerOnLaunchLaser;
     }
 
     public void Update()
@@ -27,22 +23,16 @@ internal class ShootingBehavior : IDisposable
         _gun.Reload();
     }
 
-    private void ControllerOnLaunchLaser()
+    public void LaunchLaser()
     {
         _gun.LaunchLaser(_movement.Position, _rotation.Angle);
     }
 
-    private void ControllerOnFire()
+    public void Fire()
     {
         _gun.Fire(_movement.Position, _rotation.Angle);
     }
-
-    public void Dispose()
-    {
-        _controller.Fire -= ControllerOnFire;
-        _controller.LaunchLaser -= ControllerOnLaunchLaser;
-    }
-
+    
     public event Action<TimeSpan> LaserTimeUpdated
     {
         add => _gun.LaserTimeUpdated += value;
@@ -59,5 +49,12 @@ internal class ShootingBehavior : IDisposable
     {
         add => _gun.ScoreAdded += value;
         remove => _gun.ScoreAdded -= value;
+    }
+
+    public void Dispose()
+    {
+        _gun.Dispose();
+        _movement.Dispose();
+        _rotation.Dispose();
     }
 }
